@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>07-evaluation-and-safety</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+:root {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme]) {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+}
+:root[data-theme="light"] {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+:root[data-theme="dark"] {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+transition: background .25s ease, color .25s ease;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+blockquote strong { color: var(--fg); }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+
+.theme-toggle {
+position: fixed; top: 16px; right: 16px; z-index: 100;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:active { transform: scale(.95); }
+.theme-toggle .icon { width: 15px; height: 15px; }
+
+.theme-toggle .to-dark, .theme-toggle .to-light { display: none; align-items: center; gap: 6px; }
+:root[data-theme="light"] .theme-toggle .to-dark { display: inline-flex; }
+:root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
+@media (max-width: 640px) { .theme-toggle .label { display: none; } .theme-toggle { padding: 7px; } }
+</style>
+  <script>
+    /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+    (function () {
+      try {
+        var t = localStorage.getItem('foam-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">07-evaluation-and-safety</h1>
+</header>
+<h1 id="evaluation--safety--knowing-if-its-any-good-and-whether-its-safe">Evaluation
+&amp; Safety — Knowing if It&#39;s Any Good, and Whether It&#39;s Safe</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 7 Builds on: <a href="06-inference-and-applications.md">Chapter 6 — Inference &amp;
+Applications</a> (the model — and agents built on it — can now
+<em>do</em> things) Scope: how we measure capability and safety —
+benchmarks, human/LLM judging, red-teaming — and why &quot;good&quot; is a moving
+target. The discipline that runs <em>throughout</em> the lifecycle, not
+just at the end.</p>
+</blockquote>
+<hr />
+<h2 id="0-why-this-is-its-own-chapter">0. Why this is its own
+chapter</h2>
+<p>We&#39;ve built a capable, aligned model (Chapters 2–5) and wrapped it in
+a system that can retrieve, compute, and act (Chapter 6). Two questions
+remain, and they&#39;re the whole job of this chapter:</p>
+<blockquote>
+<p><strong>Is it actually good?</strong> And <strong>is it
+safe?</strong></p>
+</blockquote>
+<p>These resist a clean answer in a way that ordinary software does not.
+A traditional program either passes its tests or fails them. A language
+model produces <strong>open-ended</strong> output with no single correct
+answer, draws on effectively unbounded knowledge, and is used in ways
+its builders never anticipated. You cannot test it exhaustively. So
+evaluation becomes its own engineering discipline — and, as we&#39;ll see, a
+permanently unfinished one.</p>
+<p>This is <strong>step 6</strong> of the Chapter 1 loop, but it
+bookends everything: you evaluate a base model, evaluate after
+alignment, evaluate before release, and <strong>keep</strong> evaluating
+in production (step 8).</p>
+<hr />
+<h2 id="1-capability-evaluation-benchmarks">1. Capability evaluation:
+benchmarks</h2>
+<p>The first instinct is to give the model a standardized exam. A
+<strong>benchmark</strong> is a fixed set of questions with known
+answers, so scoring can be automatic and models compared on a common
+yardstick. Familiar examples by flavour:</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark (example)</th>
+<th>Tests</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MMLU</strong></td>
+<td>Broad knowledge across 57 subjects</td>
+<td>Multiple choice</td>
+</tr>
+<tr>
+<td><strong>GSM8K</strong></td>
+<td>Grade-school math word problems</td>
+<td>Numeric answer</td>
+</tr>
+<tr>
+<td><strong>HumanEval</strong></td>
+<td>Code generation</td>
+<td>Run the code against unit tests</td>
+</tr>
+<tr>
+<td><strong>GPQA</strong></td>
+<td>Hard graduate-level science</td>
+<td>Multiple choice, &quot;Google-proof&quot;</td>
+</tr>
+</tbody>
+</table>
+<p>Benchmarks are indispensable: cheap, repeatable, objective, and they
+let the whole field track progress. But they have deep limitations.</p>
+<h3 id="the-three-ways-benchmarks-lie">The three ways benchmarks
+lie</h3>
+<ol type="1">
+<li><strong>Contamination (leakage).</strong> If the test questions
+appeared in the training data, a high score measures
+<em>memorization</em>, not skill. This is exactly why the
+<strong>decontamination</strong> step from Chapter 2 exists — and why
+scores from a lab that skips it should be distrusted.</li>
+<li><strong>Saturation.</strong> Once models score ~95%+, the benchmark
+stops discriminating; everyone &quot;passes,&quot; and it tells you nothing about
+the frontier. The field constantly has to invent <em>harder</em> tests
+(MMLU → GPQA → beyond).</li>
+<li><strong>Gaming / narrowness.</strong> A benchmark measures one
+narrow proxy. Optimizing to <em>the test</em> (tuning, prompt tricks,
+even training on similar data) can lift the number without lifting real
+capability — an instance of the law in Section 4.</li>
+</ol>
+<blockquote>
+<p>A benchmark score is <strong>evidence, not proof.</strong> A model
+that aces MMLU may still be useless at <em>your</em> task, because your
+task isn&#39;t on the test.</p>
+</blockquote>
+<hr />
+<h2 id="2-capability-evaluation-human-and-model-judgment">2. Capability
+evaluation: human and model judgment</h2>
+<p>Because benchmarks can&#39;t capture open-ended quality — &quot;which
+assistant is more <em>helpful</em>?&quot; — the field leans on judgment.</p>
+<ul>
+<li><strong>Human preference / arenas.</strong> Show people two
+anonymous responses to the same prompt and ask which is better;
+aggregate millions of these into an <strong>Elo-style ranking</strong>
+(as in public &quot;chatbot arenas&quot;). This captures real-world helpfulness
+that multiple-choice can&#39;t, and it&#39;s the same <em>preference</em> signal
+that powers RLHF (Chapter 5) — here used to <em>judge</em> rather than
+to <em>train</em>.</li>
+<li><strong>LLM-as-judge.</strong> Human rating is slow and costly, so a
+strong model is often used to <em>grade</em> another model&#39;s answers
+against a rubric. Fast and scalable — but circular and bias-prone
+(judges can favour their own style, longer answers, or confident tone),
+so it must be validated against humans.</li>
+</ul>
+<p>The honest summary: <strong>no single method suffices.</strong>
+Serious evaluation triangulates — benchmarks for objective skills, human
+preference for quality, LLM-judges for scale — and treats any one number
+with suspicion.</p>
+<hr />
+<h2 id="3-safety-evaluation-red-teaming">3. Safety evaluation:
+red-teaming</h2>
+<p>Capability asks &quot;can it do good things?&quot; Safety asks &quot;can it be made
+to do bad things — and what happens when it fails?&quot; The central
+technique is <strong>red-teaming</strong>: deliberately adversarial
+testing, by humans and automated systems, trying to make the model
+misbehave.</p>
+<p>What red-teamers probe for:</p>
+<ul>
+<li><strong>Jailbreaks</strong> — prompts crafted to bypass the model&#39;s
+safety training (Chapter 5), coaxing out content it&#39;s meant to
+refuse.</li>
+<li><strong>Prompt injection</strong> — malicious instructions hidden in
+<em>data the model reads</em> (a web page, a document, a tool result).
+This is the sharp risk for the <strong>agents</strong> of Chapter 6: an
+agent that browses or reads files can be hijacked by text it ingests,
+then act on the attacker&#39;s behalf.</li>
+<li><strong>Harmful content, bias, and toxicity</strong> — does it
+produce dangerous instructions, or systematically skewed/unfair outputs
+(reflecting biases from its training data, Chapter 2)?</li>
+<li><strong>Dangerous capabilities</strong> — for frontier models,
+structured evaluations of whether the model could meaningfully uplift a
+bad actor (e.g. cyber, bio). These &quot;frontier safety&quot; evals increasingly
+gate whether and how a model is released.</li>
+</ul>
+<pre><code>   Red team ──► crafts adversarial inputs ──► model ──► did it break?
+        ▲                                                   │
+        └──────────── findings patch guardrails ◄───────────┘
+        (and feed the next alignment round — Chapter 5)</code></pre>
+<p>Red-teaming is never &quot;done.&quot; It&#39;s an arms race: every new defense
+invites a new attack, so it runs continuously, before and after
+release.</p>
+<hr />
+<h2 id="4-the-core-difficulty-goodharts-law">4. The core difficulty:
+Goodhart&#39;s Law</h2>
+<p>One idea explains why both capability and safety evaluation stay
+hard:</p>
+<blockquote>
+<p><strong>&quot;When a measure becomes a target, it ceases to be a good
+measure.&quot;</strong> — Goodhart&#39;s Law</p>
+</blockquote>
+<p>Every metric here is a <em>proxy</em> for something we actually care
+about (true capability, genuine safety). The moment we optimize hard
+against the proxy — train to the benchmark, maximize the reward model
+(Chapter 5&#39;s <em>reward hacking</em>), please the human raters
+(<em>sycophancy</em>) — the proxy and the real goal drift apart. The
+number goes up; the thing you wanted may not.</p>
+<p>This is why:</p>
+<ul>
+<li>benchmarks must keep changing,</li>
+<li>evaluations are kept <strong>private/held-out</strong> so they can&#39;t
+be trained against,</li>
+<li>and &quot;how good is this model, really?&quot; never reduces to a single
+dashboard figure.</li>
+</ul>
+<p>Evaluation is fundamentally an attempt to measure something
+open-ended with closed-ended tools, against a system that — directly or
+indirectly — gets optimized toward whatever you measure.</p>
+<hr />
+<h2 id="5-honesty-calibration-and-the-hallucination-problem">5. Honesty,
+calibration, and the hallucination problem</h2>
+<p>A capability <em>and</em> safety concern in one: does the model say
+true things, and does it know what it doesn&#39;t know?</p>
+<ul>
+<li><strong>Hallucination</strong> (Chapter 6) is evaluated with
+factuality benchmarks and grounded-answer checks — but it can&#39;t be fully
+eliminated, because the model generates <em>plausible</em> tokens, not
+<em>verified</em> ones.</li>
+<li><strong>Calibration</strong> asks whether the model&#39;s confidence
+matches its accuracy: a well-calibrated model is unsure exactly when it
+should be. Alignment (Chapter 5) can accidentally <em>hurt</em>
+calibration — a model trained to sound helpful and confident may state
+guesses as facts.</li>
+<li>The practical mitigations live in Chapter 6: <strong>RAG</strong> to
+ground answers in sources, <strong>tools</strong> to compute/verify, and
+prompting the model to <strong>express uncertainty</strong> rather than
+bluff.</li>
+</ul>
+<hr />
+<h2 id="6-evaluation-never-stops-monitoring-in-production">6. Evaluation
+never stops: monitoring in production</h2>
+<p>Pre-release testing can&#39;t anticipate real users. So <strong>step
+8</strong> of the lifecycle (Chapter 1) is continuous evaluation in the
+wild:</p>
+<ul>
+<li><strong>Monitoring</strong> — track failures, drift, latency, cost,
+and abuse on live traffic.</li>
+<li><strong>Feedback</strong> — collect user signals (thumbs, reports,
+corrections).</li>
+<li><strong>Incident response</strong> — patch guardrails quickly when
+something slips through.</li>
+<li><strong>Closing the loop</strong> — feed everything learned back
+into the <strong>next</strong> data and alignment cycle (Chapters 2
+&amp; 5). The findings become training signal.</li>
+</ul>
+<p>This is what makes the lifecycle a <em>loop</em>, not a line:
+evaluation in production is the bridge from one model generation to the
+next.</p>
+<hr />
+<h2 id="7-so-what-does-good-mean">7. So what does &quot;good&quot; mean?</h2>
+<p>There is no universal answer — and that&#39;s the real lesson. &quot;Good&quot; is
+<strong>relative to a purpose</strong>:</p>
+<ul>
+<li>a coding assistant is judged on correct, runnable code;</li>
+<li>a medical tool on safety, calibration, and citable sources;</li>
+<li>a creative writing aid on fluency and variety;</li>
+<li>a high-autonomy agent on whether it completes tasks <em>without</em>
+harmful actions.</li>
+</ul>
+<p>A responsible evaluation picks the dimensions that matter for
+<em>its</em> use case, measures each with the best available (imperfect)
+tool, weighs <strong>capability against safety</strong> for that
+context, and stays humble about what the numbers don&#39;t capture.</p>
+<blockquote>
+<p>The throughline of the whole series: a modern AI system is a chain of
+imperfect-but-powerful steps — curated data, self-supervised
+pretraining, human-guided alignment, a system of tools around the model
+— and evaluation is the discipline that keeps the chain honest. It is
+never finished, and that is the point.</p>
+</blockquote>
+<hr />
+<h2 id="8-recap">8. Recap</h2>
+<ul>
+<li>Models produce <strong>open-ended</strong> output, so they can&#39;t be
+tested like ordinary software; evaluation is its own discipline that
+runs <strong>throughout</strong> the lifecycle.</li>
+<li><strong>Benchmarks</strong> (MMLU, GSM8K, HumanEval…) are cheap and
+comparable but lie via <strong>contamination</strong>,
+<strong>saturation</strong>, and <strong>gaming</strong> — evidence, not
+proof.</li>
+<li><strong>Human preference</strong> (Elo arenas) and
+<strong>LLM-as-judge</strong> capture open-ended quality; serious
+evaluation <strong>triangulates</strong> and trusts no single
+number.</li>
+<li><strong>Red-teaming</strong> is adversarial safety testing —
+jailbreaks, <strong>prompt injection</strong> (especially dangerous for
+agents), bias, and frontier &quot;dangerous capability&quot; evals. It&#39;s a
+continuous arms race.</li>
+<li><strong>Goodhart&#39;s Law</strong> explains the core difficulty:
+optimize a proxy and it stops measuring the real thing — hence held-out
+evals and ever-changing benchmarks.</li>
+<li><strong>Honesty/calibration</strong> and
+<strong>hallucination</strong> are measured but not solved; grounding
+and tools mitigate them.</li>
+<li>Evaluation <strong>never stops</strong>: production monitoring
+closes the loop back to data and alignment. &quot;<strong>Good</strong>&quot; is
+always relative to the use case.</li>
+</ul>
+<hr />
+<h2 id="whats-next">What&#39;s next</h2>
+<p>That completes the core lifecycle — from raw data all the way to a
+monitored, evaluated product, and back around the loop.</p>
+<p><strong>Appendix — Landmark Papers:</strong> a short library of the
+foundational works this whole story rests on — from Turing&#39;s 1936
+definition of computation to the 2017 Transformer and the 2020
+demonstration that scale brings few-shot learning — each with a summary
+and why it mattered.</p>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+  <span class="to-dark">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+    <span class="label">Dark</span>
+  </span>
+  <span class="to-light">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
+    <span class="label">Light</span>
+  </span>
+</button>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    function current() {
+      var a = document.documentElement.getAttribute('data-theme');
+      if (a) return a;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('foam-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

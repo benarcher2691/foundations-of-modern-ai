@@ -16,8 +16,9 @@ Each chapter exists as a Markdown source of truth (`.md`) and a self-contained, 
 | 4 | Pretraining Mechanics — loss, gradient descent, and scaling laws | [`.md`](04-pretraining-mechanics.md) | [`.html`](04-pretraining-mechanics.html) |
 | 5 | Alignment — turning a raw predictor into a helpful, honest, harmless assistant | [`.md`](05-alignment.md) | [`.html`](05-alignment.html) |
 | 6 | Inference & Applications — generation, prompting, RAG, tools, and agents | [`.md`](06-inference-and-applications.md) | [`.html`](06-inference-and-applications.html) |
+| 7 | Evaluation & Safety — benchmarks, red-teaming, and what "good" means | [`.md`](07-evaluation-and-safety.md) | [`.html`](07-evaluation-and-safety.html) |
 
-*Planned:* Chapter 7 — Evaluation & Safety.
+*Planned:* Appendix — Landmark Papers (10 foundational works, each downloaded with a summary and its significance).
 
 ## Building the HTML
 
