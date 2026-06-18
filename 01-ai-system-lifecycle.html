@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>01-ai-system-lifecycle</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+--fg: #1a1a1a; --muted: #5a5a5a; --bg: #fbfbf9; --card: #ffffff;
+--accent: #b4530f; --line: #e3e0d8; --good: #1a7f37; --warn: #b4530f;
+--code-bg: #f4f2ec;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d;
+}
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+.title { letter-spacing: -.02em; }
+blockquote strong { color: var(--fg); }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">01-ai-system-lifecycle</h1>
+</header>
+<h1 id="building-a-modern-ai-system--the-top-level-map">Building a
+Modern AI System — The Top-Level Map</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 1 Scope: the end-to-end
+lifecycle of a modern AI system, at the altitude of &quot;major steps.&quot; Focus
+model: Large Language Models (LLMs) like the GPT / Claude / Gemini
+families, because they are the dominant paradigm today. Most steps
+generalize to other AI systems.</p>
+</blockquote>
+<hr />
+<h2 id="1-the-big-picture">1. The big picture</h2>
+<p>A modern AI system is built along a spine of four ideas: <strong>data
+→ train → refine → use</strong>. That spine is correct, but it hides the
+joints that make the whole thing work — how raw data becomes
+model-readable, what the model actually <em>is</em>, how you know it
+works, and how it survives contact with real users.</p>
+<p>Filling those joints in gives <strong>eight major steps</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Step</th>
+<th>One-sentence purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Data collection &amp; curation</strong></td>
+<td>Gather, filter, deduplicate, and clean a huge, high-quality
+corpus.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Preprocessing &amp; tokenization</strong></td>
+<td>Turn text into the integer tokens the model actually consumes.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Model architecture &amp; design</strong></td>
+<td>Choose the network (almost always a Transformer) and its size.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Pretraining</strong></td>
+<td>Self-supervised next-token prediction over the whole corpus — the
+expensive part.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Post-training &amp; alignment</strong></td>
+<td>SFT + RLHF/preference tuning to make it helpful, honest, and
+safe.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Evaluation &amp; red-teaming</strong></td>
+<td>Measure capability and safety before and after shipping.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Deployment &amp; inference</strong></td>
+<td>Serve the model efficiently; add prompting, retrieval, tools,
+agents.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Monitoring &amp; iteration</strong></td>
+<td>Watch real usage, catch failures, feed learnings back to step
+1.</td>
+</tr>
+</tbody>
+</table>
+<p>It is a <strong>loop, not a line</strong>: step 8 feeds step 1 for
+the next model generation.</p>
+<pre><code>        ┌───────────────────────────────────────────────────────────────┐
+        │                                                               │
+        v                                                               │
+ [1] Data ──&gt; [2] Tokenize ──&gt; [3] Architecture ──&gt; [4] Pretrain ──&gt;    │
+                                                          │             │
+                                                          v             │
+                                  [5] Post-train/align ──&gt; [6] Evaluate │
+                                                          │             │
+                                                          v             │
+                                       [7] Deploy/serve ──&gt; [8] Monitor ┘</code></pre>
+<hr />
+<h2 id="2-each-step-briefly">2. Each step, briefly</h2>
+<h3 id="step-1--data-collection--curation">Step 1 — Data collection
+&amp; curation</h3>
+<p>Sources: web crawls (e.g. Common Crawl), books, code, reference
+works, licensed datasets, and increasingly <em>synthetic</em> data
+generated by other models. <strong>The work is removal, not
+collection:</strong> strip boilerplate and spam, deduplicate
+(near-duplicates hurt), filter for quality and safety, remove personal
+data, and respect licensing. The slogan that holds up: <em>garbage in,
+garbage out.</em> A smaller clean corpus beats a larger dirty one.</p>
+<blockquote>
+<p>You don&#39;t want &quot;all text on the internet.&quot; Most of the internet is
+low-value for training, and some of it is actively harmful.
+<strong>Curation is the craft</strong> of this step.</p>
+</blockquote>
+<h3 id="step-2--preprocessing--tokenization">Step 2 — Preprocessing
+&amp; tokenization</h3>
+<p>Models don&#39;t read characters or words — they read
+<strong>tokens</strong>, integer IDs for sub-word chunks (e.g.
+<code>&quot;tokenization&quot;</code> → <code>token</code> +
+<code>ization</code>). A <em>tokenizer</em> (commonly Byte-Pair
+Encoding) is learned from the data. Token count is the unit of nearly
+everything downstream: context-window size, cost, and speed are all
+measured in tokens. This step is the bridge between raw text and the
+math.</p>
+<h3 id="step-3--model-architecture--design">Step 3 — Model architecture
+&amp; design</h3>
+<p>Today this almost always means a <strong>Transformer</strong> (the
+2017 &quot;Attention Is All You Need&quot; design), whose <em>attention</em>
+mechanism lets every token weigh every other token. Key choices: number
+of parameters (billions to trillions), number of layers, context-window
+length, and variants like <strong>Mixture-of-Experts</strong> (only part
+of the network runs per token, for efficiency). Architecture is
+<em>chosen by humans</em>; the parameters inside it are <em>learned by
+training</em>.</p>
+<h3 id="step-4--pretraining">Step 4 — Pretraining</h3>
+<p>The model is shown text and repeatedly asked to <strong>predict the
+next token</strong>; each wrong guess nudges its billions of parameters
+via gradient descent. This is <strong>self-supervised</strong> — the
+&quot;labels&quot; are just the next words already in the text, so no humans
+annotate anything. It is also the dominant <em>cost</em>: months of
+thousands of GPUs/TPUs. The output is a <strong>base model</strong> that
+has absorbed grammar, facts, reasoning patterns, and code — but doesn&#39;t
+yet reliably <em>follow instructions</em> or behave as an assistant.</p>
+<h3 id="step-5--post-training--alignment">Step 5 — Post-training &amp;
+alignment</h3>
+<p>This turns a base model into a usable assistant, and it&#39;s where
+humans enter the loop:</p>
+<ul>
+<li><strong>Supervised fine-tuning (SFT):</strong> train on curated
+examples of good instruction-following (often human-written
+demonstrations).</li>
+<li><strong>Preference optimization / RLHF:</strong> humans (or AI
+judges — &quot;RLAIF&quot;) rank competing answers; the model is tuned to prefer
+the better ones. Methods include RLHF and DPO.</li>
+<li><strong>Safety alignment:</strong> teach refusal of harmful
+requests, honesty about uncertainty, and tone.</li>
+</ul>
+<p>Comparatively cheap vs. pretraining, but it has an outsized effect on
+how the model <em>feels</em> to use.</p>
+<h3 id="step-6--evaluation--red-teaming">Step 6 — Evaluation &amp;
+red-teaming</h3>
+<p>Before and after shipping, measure:</p>
+<ul>
+<li><strong>Capability:</strong> benchmarks (math, coding, reasoning,
+knowledge) and increasingly human/LLM preference judging.</li>
+<li><strong>Safety:</strong> <strong>red-teaming</strong> — deliberately
+trying to make the model misbehave — plus bias and robustness
+testing.</li>
+</ul>
+<p>The hard, unsolved part: benchmarks get &quot;gamed&quot; or leak into training
+data, so evaluation is a moving target. This step is easy to overlook,
+yet a lot of real engineering effort lives here.</p>
+<h3 id="step-7--deployment--inference">Step 7 — Deployment &amp;
+inference</h3>
+<p><strong>Inference</strong> is the act of running the trained model to
+generate output, one token at a time (each new token is appended and fed
+back in: <em>autoregressive</em> generation). Around the raw model sits
+a system:</p>
+<ul>
+<li><strong>Serving &amp; optimization:</strong> quantization, batching,
+caching to make it fast and cheap.</li>
+<li><strong>Prompting &amp; context:</strong> system prompts, the
+context window, few-shot examples.</li>
+<li><strong>Retrieval (RAG):</strong> fetch relevant documents at query
+time so the model can cite current/private data it wasn&#39;t trained
+on.</li>
+<li><strong>Tools &amp; agents:</strong> let the model call functions,
+search, run code, and take multi-step actions.</li>
+</ul>
+<p>This is where most <em>application</em> developers actually work —
+the model is a component, not the whole product.</p>
+<h3 id="step-8--monitoring--iteration">Step 8 — Monitoring &amp;
+iteration</h3>
+<p>Once real users arrive: log failures, watch for drift and abuse,
+gather feedback, patch with guardrails, and feed lessons into the
+<strong>next</strong> data/training cycle. This closes the loop — modern
+AI is built in <em>generations</em>, not once.</p>
+<hr />
+<h2 id="3-mental-model-to-carry-forward">3. Mental model to carry
+forward</h2>
+<p>Three reframes that will pay off as we go deeper:</p>
+<ol type="1">
+<li><strong>Curation, not collection.</strong> The data step is about
+what you <em>throw away</em>.</li>
+<li><strong>Two very different training phases.</strong> Pretraining
+(huge, automatic, builds raw capability) vs. post-training (smaller,
+human-guided, builds behavior). Treating them as one undifferentiated
+&quot;training&quot; is the most common beginner mistake — keep them firmly
+separate in your mind.</li>
+<li><strong>The model is a component.</strong> The thing users touch is
+model + prompting + retrieval + tools + guardrails. &quot;Using an AI system&quot;
+is rarely just calling a raw model.</li>
+</ol>
+<hr />
+<h2 id="4-where-this-series-goes-next">4. Where this series goes
+next</h2>
+<p>The chapters ahead, each its own <code>.md</code> +
+<code>.html</code>:</p>
+<ul>
+<li><strong>Chapter 2 — Data &amp; tokenization:</strong> what a corpus
+really looks like; a BPE walkthrough.</li>
+<li><strong>Chapter 3 — The Transformer:</strong> attention explained
+from scratch, no prior math assumed.</li>
+<li><strong>Chapter 4 — Pretraining mechanics:</strong> loss, gradient
+descent, scaling laws, compute.</li>
+<li><strong>Chapter 5 — Alignment:</strong> SFT, RLHF, DPO, and why
+&quot;helpful, honest, harmless.&quot;</li>
+<li><strong>Chapter 6 — Inference &amp; applications:</strong>
+prompting, RAG, tools, agents.</li>
+<li><strong>Chapter 7 — Evaluation &amp; safety:</strong> benchmarks,
+red-teaming, what &quot;good&quot; means.</li>
+</ul>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+</body>
+</html>

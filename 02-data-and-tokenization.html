@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>02-data-and-tokenization</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+--fg: #1a1a1a; --muted: #5a5a5a; --bg: #fbfbf9; --card: #ffffff;
+--accent: #b4530f; --line: #e3e0d8; --good: #1a7f37; --warn: #b4530f;
+--code-bg: #f4f2ec;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d;
+}
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+.title { letter-spacing: -.02em; }
+blockquote strong { color: var(--fg); }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">02-data-and-tokenization</h1>
+</header>
+<h1 id="data--tokenization--from-the-messy-internet-to-clean-integers">Data
+&amp; Tokenization — From the Messy Internet to Clean Integers</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 2 Builds on: <a href="01-ai-system-lifecycle.md">Chapter 1 — The Top-Level Map</a>
+(steps 1 &amp; 2 of the pipeline) Scope: what a training corpus
+<em>really</em> is, how it&#39;s cleaned, and how text becomes the integer
+<strong>tokens</strong> a model actually consumes.</p>
+</blockquote>
+<hr />
+<h2 id="0-where-we-are-in-the-pipeline">0. Where we are in the
+pipeline</h2>
+<p>In Chapter 1 we drew an 8-step loop. This chapter zooms into the
+first two:</p>
+<pre><code> [1] Data ──&gt; [2] Tokenize ──&gt; [3] Architecture ──&gt; [4] Pretrain ──&gt; ...
+  ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+  you are here</code></pre>
+<p>The headline you should leave with: <strong>the model never sees
+text.</strong> It sees a stream of integers. Everything in this part is
+about producing a <em>clean, well-mixed</em> stream of those integers —
+because that stream is the entire universe the model learns from.</p>
+<hr />
+<h2 id="1-what-a-training-corpus-actually-looks-like">1. What a training
+corpus actually looks like</h2>
+<p>Not &quot;the internet&quot; as a blob. A modern corpus is a deliberately
+<strong>mixed blend</strong> of sources, each chosen for what it
+teaches:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Roughly teaches</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Web crawl</strong> (e.g. Common Crawl)</td>
+<td>Breadth, everyday language, current topics</td>
+<td>The bulk by raw volume — and the dirtiest. Heavily filtered.</td>
+</tr>
+<tr>
+<td><strong>Books &amp; long-form</strong></td>
+<td>Sustained reasoning, narrative, depth</td>
+<td>High quality per token; licensing-sensitive.</td>
+</tr>
+<tr>
+<td><strong>Code</strong> (e.g. public repos)</td>
+<td>Logic, structure, and — surprisingly — <em>general
+reasoning</em></td>
+<td>Improves non-code reasoning too.</td>
+</tr>
+<tr>
+<td><strong>Reference</strong> (encyclopedias, docs, Q&amp;A)</td>
+<td>Facts, definitions, how-to</td>
+<td>Dense, high-trust.</td>
+</tr>
+<tr>
+<td><strong>Academic / technical</strong></td>
+<td>Math, science, formal argument</td>
+<td>Hard, valuable tokens.</td>
+</tr>
+<tr>
+<td><strong>Synthetic</strong> (generated by other models)</td>
+<td>Targeted skills, rare formats, gap-filling</td>
+<td>Fast-growing; must be quality-controlled to avoid &quot;model
+collapse.&quot;</td>
+</tr>
+</tbody>
+</table>
+<p>Two ideas matter more than the list itself:</p>
+<ul>
+<li><strong>The mixture is a design choice.</strong> Engineers tune
+<em>how much</em> of each source to include (and how often to repeat it
+— &quot;epochs&quot;/&quot;weights&quot;). Up-weighting code or math measurably changes the
+final model&#39;s skills. The blend is a recipe, not an accident.</li>
+<li><strong>Scale is in tokens, not gigabytes or pages.</strong>
+Frontier models train on <strong>trillions of tokens</strong>. &quot;Token&quot;
+is the unit of everything from here on — which is exactly what Section 3
+defines.</li>
+</ul>
+<hr />
+<h2 id="2-curation-the-data-step-is-mostly-deletion">2. Curation: the
+data step is mostly <em>deletion</em></h2>
+<p>Here is the principle from Chapter 1 — <em>curation, not
+collection</em> — made concrete. Raw web crawl is ~90%+ unusable. The
+pipeline that turns it into training data is a sequence of
+<strong>filters</strong>, each throwing data away:</p>
+<ol type="1">
+<li><strong>Extraction</strong> — pull readable text out of HTML; drop
+nav bars, ads, menus, boilerplate.</li>
+<li><strong>Language &amp; domain filtering</strong> — keep target
+languages; drop spam/SEO farms, adult/abuse content.</li>
+<li><strong>Quality filtering</strong> — heuristics (too short, too many
+symbols, gibberish) <em>plus</em> a trained <strong>quality
+classifier</strong> that scores &quot;does this read like the good
+stuff?&quot;</li>
+<li><strong>Deduplication</strong> — remove exact <em>and</em>
+near-duplicate documents. This is critical: duplicates make the model
+memorize instead of generalize, and waste compute. Often the single
+biggest quality lever.</li>
+<li><strong>PII &amp; safety scrubbing</strong> — strip personal data,
+secrets, and the worst content.</li>
+<li><strong>Decontamination</strong> — remove text that overlaps with
+<strong>evaluation benchmarks</strong>, so test scores reflect real
+skill, not memorized answers. (Skipping this is how labs accidentally —
+or deliberately — inflate benchmark numbers; see Chapter 7.)</li>
+</ol>
+<pre><code>  Raw crawl  ─filter→ ─dedup→ ─quality→ ─safety→ ─decontaminate→  Clean corpus
+  (petabytes)                                                     (trillions of *good* tokens)
+     ░░░░░░░░░░░░░░░░░░  →  →  →  →  →  →                          ▓▓▓
+     mostly thrown away                                           what&#39;s kept</code></pre>
+<blockquote>
+<p><strong>Garbage in, garbage out</strong> is not a cliché here — it&#39;s
+the dominant lever on final model quality, often more than architecture
+tweaks. Curation is <em>the craft</em> of the data step.</p>
+</blockquote>
+<hr />
+<h2 id="3-tokenization-why-the-model-reads-integers">3. Tokenization:
+why the model reads integers</h2>
+<p>A neural network does arithmetic on numbers. It cannot operate on the
+letter <code>a</code> or the word <code>cat</code> directly. So before
+training, all text is converted into a sequence of integer IDs called
+<strong>tokens</strong>. The component that does this —
+deterministically, both ways — is the <strong>tokenizer</strong>.</p>
+<pre><code>  &quot;Tokenizing is fun!&quot;
+        │  tokenizer.encode()
+        ▼
+  [&quot;Token&quot;, &quot;izing&quot;, &quot; is&quot;, &quot; fun&quot;, &quot;!&quot;]      ← human-readable pieces
+        │
+        ▼
+  [15496, 4954, 318, 1257, 0]                 ← the integers the model sees</code></pre>
+<p>The reverse (<code>decode</code>) turns the model&#39;s output integers
+back into text. The tokenizer is <strong>fixed before
+pretraining</strong> and shipped <em>with</em> the model — encode and
+decode must always agree.</p>
+<h3 id="why-not-just-use-words-or-just-letters">Why not just use words,
+or just letters?</h3>
+<p>Tokenization is a compromise between two bad extremes:</p>
+<table>
+<thead>
+<tr>
+<th>Granularity</th>
+<th>Vocabulary size</th>
+<th>Sequence length</th>
+<th>Problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Characters</strong></td>
+<td>Tiny (~100)</td>
+<td>Very long</td>
+<td>Model wastes capacity relearning how letters form words; sequences
+explode.</td>
+</tr>
+<tr>
+<td><strong>Whole words</strong></td>
+<td>Huge (millions)</td>
+<td>Short</td>
+<td>Can&#39;t handle new/rare/misspelled words (&quot;out-of-vocabulary&quot;); vocab
+unmanageable.</td>
+</tr>
+<tr>
+<td><strong>Sub-words</strong> ✅</td>
+<td>~30k–250k</td>
+<td>Moderate</td>
+<td>The sweet spot used by virtually all modern LLMs.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sub-word tokenization</strong> keeps common words as single
+tokens (<code>&quot; the&quot;</code>, <code>&quot; is&quot;</code>) while breaking rare
+words into reusable pieces (<code>&quot;tokenization&quot;</code> →
+<code>token</code> + <code>ization</code>). Nothing is ever truly
+out-of-vocabulary, because the worst case falls back to
+bytes/characters.</p>
+<hr />
+<h2 id="4-how-sub-word-vocabularies-are-built-bpe">4. How sub-word
+vocabularies are built: BPE</h2>
+<p>The most common method is <strong>Byte-Pair Encoding (BPE)</strong>.
+It&#39;s a <em>learned</em> compression scheme: you run it once over a
+sample of the corpus to discover a good vocabulary, then reuse that
+vocabulary forever.</p>
+<p>The algorithm is simple enough to follow by hand:</p>
+<ol type="1">
+<li>Start with the smallest units (bytes/characters) as your
+vocabulary.</li>
+<li>Count every adjacent pair across the data.</li>
+<li><strong>Merge the single most frequent pair</strong> into a new
+token; add it to the vocabulary.</li>
+<li>Repeat until you hit a target vocabulary size (e.g. 50,000
+merges).</li>
+</ol>
+<h3 id="a-tiny-worked-example">A tiny worked example</h3>
+<p>Suppose our entire corpus is just the word <code>low</code> repeated,
+plus <code>lower</code>, <code>lowest</code>, <code>newest</code>,
+<code>widest</code>. Start as characters:</p>
+<pre><code> l o w / l o w e r / l o w e s t / n e w e s t / w i d e s t</code></pre>
+<ul>
+<li>The pair <code>e s</code> is very frequent (<code>lowest</code>,
+<code>newest</code>, <code>widest</code>) → <strong>merge →
+<code>es</code></strong>.</li>
+<li>Now <code>es t</code> is frequent → <strong>merge →
+<code>est</code></strong>.</li>
+<li><code>l o</code> appears in <code>low</code>, <code>lower</code>,
+<code>lowest</code> → <strong>merge → <code>lo</code></strong>, then
+<code>lo w</code> → <strong><code>low</code></strong>.</li>
+</ul>
+<p>After a few merges the vocabulary contains useful chunks:
+<code>est</code>, <code>low</code>, <code>er</code>, … So a <em>new</em>
+word like <code>slowest</code> tokenizes neatly as <code>s</code> +
+<code>low</code> + <code>est</code> — pieces it has seen, even though
+the whole word is new. <strong>That generalization is the entire
+point.</strong></p>
+<p>Modern tokenizers operate on raw <strong>bytes</strong> (so any
+character in any language, plus emoji, always encodes), and bake
+whitespace into tokens — which is why you&#39;ll see leading-space tokens
+like <code>&quot; fun&quot;</code> rather than <code>&quot;fun&quot;</code>.</p>
+<hr />
+<h2 id="5-special-tokens-and-structure">5. Special tokens and
+structure</h2>
+<p>Beyond ordinary text, tokenizers reserve a handful of <strong>special
+tokens</strong> that carry structural meaning rather than content:</p>
+<ul>
+<li><strong>End-of-text / document boundary</strong> — tells the model
+where one document stops.</li>
+<li><strong>Chat role markers</strong> — e.g. tokens that delimit
+<em>system</em>, <em>user</em>, and <em>assistant</em> turns. These are
+how a chat model knows &quot;this part is the user talking, this part is me.&quot;
+(Central to Chapter 5 — alignment.)</li>
+<li><strong>Padding / unknown / tool-call markers</strong>, depending on
+the system.</li>
+</ul>
+<p>This is a quiet but important point: the conversation structure you
+experience as &quot;roles&quot; is, underneath, <strong>just more tokens</strong>
+in the same stream.</p>
+<hr />
+<h2 id="6-why-this-matters-in-practice">6. Why this matters in
+practice</h2>
+<p>Tokens aren&#39;t an internal detail you can ignore — they&#39;re the unit of
+cost, speed, and limits:</p>
+<ul>
+<li><strong>Context window</strong> (e.g. 200K tokens) is measured in
+tokens, not words. Rough English rule of thumb: <strong>1 token ≈ 4
+characters ≈ ¾ of a word</strong>, so ~750 words ≈ 1,000 tokens. (Varies
+by language and content.)</li>
+<li><strong>Price and latency</strong> are per-token. Longer prompts and
+outputs cost proportionally more.</li>
+<li><strong>Non-English text and code cost more tokens</strong> for the
+same meaning, because the tokenizer was optimized mostly on English — a
+real fairness/efficiency issue.</li>
+<li><strong>Tokenization explains weird failures.</strong> The classic
+&quot;how many <em>r</em>&#39;s in <em>strawberry</em>?&quot; stumble happens partly
+because the model sees <code>straw</code> + <code>berry</code> as a
+couple of tokens, not nine letters — it never had the letters as
+separate units. Likewise, arithmetic on long numbers is hard partly
+because of how digits get chunked.</li>
+</ul>
+<blockquote>
+<p>Mental model: <strong>the tokenizer is the model&#39;s senses.</strong>
+It can only perceive the world in the chunks the tokenizer hands it.
+Many &quot;why did the AI do <em>that</em>?&quot; mysteries dissolve once you
+remember it&#39;s reading tokens, not characters or words.</p>
+</blockquote>
+<hr />
+<h2 id="7-recap">7. Recap</h2>
+<ul>
+<li>The model <strong>never sees text</strong> — only a stream of
+integer <strong>tokens</strong>. The data pipeline exists to make that
+stream clean and well-mixed.</li>
+<li>A corpus is a <strong>deliberate blend</strong> of sources (web,
+books, code, reference, synthetic), measured in <strong>trillions of
+tokens</strong>. The mixture is a tuned recipe.</li>
+<li>Curation is mostly <strong>deletion</strong>: extract → filter →
+<strong>deduplicate</strong> → scrub → <strong>decontaminate</strong>.
+This is the dominant quality lever.</li>
+<li><strong>Sub-word tokenization</strong> (usually
+<strong>BPE</strong>) is the compromise between characters and words:
+common words stay whole, rare words split into reusable pieces, nothing
+is out-of-vocabulary.</li>
+<li>Tokens are the unit of <strong>context size, cost, and
+speed</strong>, and they explain a whole class of model quirks.</li>
+</ul>
+<hr />
+<h2 id="next-up">Next up</h2>
+<p><strong>Chapter 3 — The Transformer:</strong> now that we have a
+clean stream of tokens, what is the machine that consumes it? We&#39;ll
+build up <em>attention</em> from scratch — how a model lets every token
+&quot;look at&quot; every other token — with no prior math assumed.</p>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04-pretraining-mechanics</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+--fg: #1a1a1a; --muted: #5a5a5a; --bg: #fbfbf9; --card: #ffffff;
+--accent: #b4530f; --line: #e3e0d8; --good: #1a7f37; --warn: #b4530f;
+--code-bg: #f4f2ec;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d;
+}
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+.title { letter-spacing: -.02em; }
+blockquote strong { color: var(--fg); }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">04-pretraining-mechanics</h1>
+</header>
+<h1 id="pretraining-mechanics--how-billions-of-numbers-learn-to-predict">Pretraining
+Mechanics — How Billions of Numbers Learn to Predict</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 4 Builds on: <a href="03-the-transformer.md">Chapter 3 — The Transformer</a> (we have
+the machine; now it must learn) Scope: what &quot;training&quot; physically does —
+the <strong>loss</strong>, <strong>gradient descent</strong>, and the
+<strong>scaling laws</strong> that predict how good a model gets. No
+prior math assumed.</p>
+</blockquote>
+<hr />
+<h2 id="0-whats-actually-inside-the-machine">0. What&#39;s actually inside
+the machine</h2>
+<p>In Chapter 3 we built the Transformer&#39;s <em>structure</em> —
+embeddings, attention, blocks. But a freshly built Transformer is
+useless: its <strong>parameters</strong> (also called <em>weights</em> —
+the billions of numbers that fill the attention and feed-forward layers)
+start as <strong>random noise</strong>. Ask it to predict the next token
+and it produces gibberish, every token equally likely.</p>
+<p><strong>Pretraining is the process of adjusting those billions of
+numbers until the predictions become good.</strong> That&#39;s the whole
+game. This chapter is about <em>how</em> that adjustment happens,
+mechanically, and <em>how far</em> it can be pushed (scaling laws).</p>
+<blockquote>
+<p>Helpful frame: the architecture is the <em>shape</em> of the brain;
+the parameters are <em>what it has learned</em>. Two models with
+identical architecture but different parameters are as different as two
+people with the same kind of brain but different memories.</p>
+</blockquote>
+<hr />
+<h2 id="1-measuring-wrongness-the-loss">1. Measuring wrongness: the
+loss</h2>
+<p>You can&#39;t improve what you can&#39;t measure. So we need a single number
+that says <em>how wrong</em> the model currently is. That number is the
+<strong>loss</strong>.</p>
+<p>The recipe, for next-token prediction:</p>
+<ol type="1">
+<li>Take real text from the corpus:
+<code>&quot;The cat sat on the ___&quot;</code>.</li>
+<li>The model outputs a probability for every possible next token
+(Chapter 3, Section 7).</li>
+<li>Look at the probability it gave to the token that <em>actually</em>
+came next (<code>mat</code>).</li>
+<li><strong>High probability on the right answer → low loss. Low
+probability → high loss.</strong> (Technically this is
+<em>cross-entropy</em>: the loss is large when the model was &quot;surprised&quot;
+by the true token.)</li>
+</ol>
+<pre><code>   model said:  mat 0.41, floor 0.18, sofa 0.07, ...
+   truth was:   &quot;mat&quot;
+   gave it 0.41 → &quot;mildly surprised&quot; → moderate loss
+
+   if it had said mat 0.95 → low loss   (confident &amp; correct)
+   if it had said mat 0.01 → high loss  (confident &amp; wrong = heavily penalized)</code></pre>
+<p>Average this over a huge amount of text and you get
+<strong>the</strong> number that training tries to push down. Lower loss
+= better next-token predictions = a more capable model.
+<em>Everything</em> in pretraining is in service of reducing this one
+quantity.</p>
+<hr />
+<h2 id="2-the-learning-step-gradient-descent">2. The learning step:
+gradient descent</h2>
+<p>Now the central question: given that the loss is too high,
+<strong>which way should we nudge each of the billions of parameters to
+make it lower?</strong></p>
+<p>The answer comes from the <strong>gradient</strong> — for every
+single parameter, a number saying &quot;if you increase this weight a tiny
+bit, the loss goes <em>up</em> this much (or <em>down</em> this much).&quot;
+The gradient is computed by an algorithm called
+<strong>backpropagation</strong>, which efficiently traces the loss
+backward through every layer to assign each parameter its share of the
+blame.</p>
+<p>Then we take a small step in the direction that <em>reduces</em>
+loss. This is <strong>gradient descent</strong>, and the standard
+analogy is exact:</p>
+<pre><code>   You&#39;re on a foggy hillside (the &quot;loss landscape&quot;) and want the valley floor.
+   You can&#39;t see far, but you can feel the slope under your feet (the gradient).
+   Rule: step a little in the steepest-downhill direction. Repeat.
+
+        loss
+         │   \                         . ← random start (high loss)
+         │    \                      .&#39;
+         │     \                  .&#39;   each step ↓ reduces loss
+         │      &#39;.            _.-&#39;
+         │        &#39;._     _.-&#39;
+         │           &#39;---&#39;  ← lower loss (better model)
+         └──────────────────────────────► (billions of parameter dimensions)</code></pre>
+<p>How big a step? The <strong>learning rate</strong> — too large and
+you overshoot the valley; too small and training takes forever. Tuning
+it is part of the craft.</p>
+<h3 id="the-training-loop-in-full">The training loop, in full</h3>
+<p>Pretraining is just this loop, repeated an astronomical number of
+times:</p>
+<pre><code>   repeat for trillions of tokens:
+     1. FORWARD   — feed a batch of text through the model, get predictions
+     2. LOSS      — measure how wrong they were
+     3. BACKWARD  — backpropagation computes the gradient for every parameter
+     4. UPDATE    — nudge every parameter a small step downhill (gradient descent)</code></pre>
+<p>A few terms you&#39;ll now recognize:</p>
+<ul>
+<li><strong>Batch</strong> — we process many text chunks at once
+(thousands of tokens) per step, for stable, efficient updates.</li>
+<li><strong>Step</strong> — one pass of the four-stage loop above; a big
+run is <em>millions</em> of steps.</li>
+<li><strong>Epoch</strong> — one full pass over the dataset. Frontier
+LLMs often train for only ~1 epoch (or less) on deduplicated data —
+they&#39;re so data-hungry that seeing data once is typical, which is also
+why the <em>deduplication</em> from Chapter 2 matters so much.</li>
+</ul>
+<p>That&#39;s it. There is no separate &quot;understanding&quot; module — grammar,
+facts, reasoning, and coding ability are <strong>all</strong>
+side-effects of relentlessly minimizing next-token loss over a vast,
+varied corpus.</p>
+<hr />
+<h2 id="3-the-staggering-scale">3. The staggering scale</h2>
+<p>This loop is conceptually simple but physically enormous. The compute
+bill is governed by a rough rule:</p>
+<blockquote>
+<p><strong>Training compute ≈ 6 × (number of parameters) × (number of
+training tokens).</strong></p>
+</blockquote>
+<p>Plug in frontier numbers — hundreds of billions of parameters,
+trillions of tokens — and you get figures like <strong>10²⁵
+floating-point operations</strong>, which translates to:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Frontier-scale ballpark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hardware</td>
+<td>Tens of thousands of GPUs/TPUs in a cluster</td>
+</tr>
+<tr>
+<td>Wall-clock time</td>
+<td>Weeks to a few months of continuous running</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>Tens to hundreds of millions of dollars per run</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>One set of trained parameters (a &quot;base model&quot;)</td>
+</tr>
+</tbody>
+</table>
+<p>This is why pretraining happens <strong>rarely</strong> (a handful of
+times per model generation), is done by <strong>few
+organizations</strong>, and is checkpointed obsessively — a crash 80%
+through a two-month run is enormously expensive, so the parameters are
+saved to disk continually.</p>
+<p>It also reframes everything downstream: post-training (Chapter 5) and
+inference (Chapter 6) are <em>cheap</em> by comparison. The giant,
+one-time cost is here.</p>
+<hr />
+<h2 id="4-scaling-laws-bigger-is-predictably-better">4. Scaling laws:
+bigger is predictably better</h2>
+<p>The discovery that powered the last several years: <strong>model
+quality improves smoothly and predictably as you add compute, data, and
+parameters.</strong> Plot loss against scale and you get a clean,
+descending <strong>power law</strong> — no plateau in the ranges
+explored so far.</p>
+<pre><code>   loss
+     │•
+     │ ••                  Each 10× in compute buys a
+     │   •••               reliable, measurable drop in loss.
+     │      ••••           Smooth enough to *forecast* a big
+     │          •••••      model&#39;s loss from small experiments.
+     │               ••••••••••
+     └────────────────────────────► compute / data / parameters  (log scale)</code></pre>
+<p>Why this matters: it turns model-building from alchemy into
+<strong>planning</strong>. Before spending $100M, labs run small models,
+fit the curve, and extrapolate what the big one will achieve. It&#39;s the
+closest thing the field has to an engineering law.</p>
+<h3 id="compute-optimal-training-the-chinchilla-insight">Compute-optimal
+training (the &quot;Chinchilla&quot; insight)</h3>
+<p>Given a fixed compute budget, should you build a <em>bigger</em>
+model or train on <em>more data</em>? Early models were oversized and
+undertrained. The <strong>Chinchilla</strong> finding (2022) showed a
+balanced ratio is best — roughly <strong>20 training tokens per
+parameter</strong> — and that a smaller, well-fed model beats a larger,
+data-starved one. This is <em>why</em> token counts exploded into the
+trillions, and why the data-curation work of Chapter 2 became a frontier
+bottleneck: at some point you run out of high-quality tokens.</p>
+<h3 id="emergence-abilities-that-switch-on">Emergence: abilities that
+switch on</h3>
+<p>Scaling isn&#39;t only smooth. Some capabilities — multi-step arithmetic,
+certain kinds of reasoning, following novel instructions — are nearly
+absent in small models and then appear <strong>relatively
+abruptly</strong> past a size threshold. These <strong>emergent
+abilities</strong> are part of why scaling has been pursued so
+aggressively, and part of why each model generation surprises even its
+builders. (How sharp these jumps &quot;really&quot; are is an active research
+debate, but the practical effect — new skills arriving with scale — is
+not in dispute.)</p>
+<hr />
+<h2 id="5-what-you-get-at-the-end-a-base-model">5. What you get at the
+end: a base model</h2>
+<p>When the loop finally stops, you have a <strong>base (pretrained)
+model</strong>: parameters that encode a vast amount of the world&#39;s
+text. It is startlingly capable — and also not yet the assistant you
+talk to.</p>
+<table>
+<thead>
+<tr>
+<th>A base model <strong>can</strong></th>
+<th>A base model <strong>cannot (yet)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Continue/complete any text plausibly</td>
+<td>Reliably <em>follow an instruction</em> rather than just continue
+it</td>
+</tr>
+<tr>
+<td>Reproduce grammar, facts, code, styles</td>
+<td>Know when to refuse harmful or unsafe requests</td>
+</tr>
+<tr>
+<td>Do in-context learning from examples in the prompt</td>
+<td>Hold a helpful chat persona, or say &quot;I don&#39;t know&quot;</td>
+</tr>
+<tr>
+<td>Serve as the raw substrate of intelligence</td>
+<td>Behave safely and predictably out of the box</td>
+</tr>
+</tbody>
+</table>
+<p>Ask a base model &quot;What is the capital of France?&quot; and it might
+helpfully answer <em>Paris</em> — or it might continue with &quot;What is the
+capital of Germany? What is the capital of Spain?&quot; because that pattern
+(a quiz list) is also a plausible <em>continuation</em>. It predicts; it
+doesn&#39;t yet <em>assist</em>.</p>
+<p>Closing that gap — turning a raw next-token predictor into a helpful,
+honest, harmless assistant — is <strong>post-training and
+alignment</strong>, the subject of Chapter 5.</p>
+<hr />
+<h2 id="6-recap">6. Recap</h2>
+<ul>
+<li>A model&#39;s <strong>parameters</strong> start random;
+<strong>pretraining</strong> adjusts them until next-token predictions
+are good.</li>
+<li>The <strong>loss</strong> measures wrongness (surprise at the true
+next token). All of training minimizes this one number.</li>
+<li><strong>Backpropagation</strong> computes the
+<strong>gradient</strong> (which way to nudge each parameter);
+<strong>gradient descent</strong> takes a small downhill step. Repeat
+over <strong>trillions of tokens</strong> — that loop <em>is</em>
+learning.</li>
+<li>The scale is enormous (≈ <code>6 × params × tokens</code> operations
+→ months, many GPUs, huge cost), which is why pretraining is rare and
+downstream steps are comparatively cheap.</li>
+<li><strong>Scaling laws</strong> make quality a predictable function of
+compute/data/size; <strong>Chinchilla</strong> says balance parameters
+with ~20× tokens; some abilities <strong>emerge</strong> abruptly with
+scale.</li>
+<li>The result is a <strong>base model</strong> — broadly capable, but
+not yet an instruction-following, safe assistant. That&#39;s Chapter 5.</li>
+</ul>
+<hr />
+<h2 id="next-up">Next up</h2>
+<p><strong>Chapter 5 — Alignment:</strong> how supervised fine-tuning
+(SFT) and reinforcement learning from human (or AI) feedback
+(RLHF/RLAIF, DPO) turn a raw base model into the helpful, honest, and
+harmless assistant you actually interact with.</p>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+</body>
+</html>

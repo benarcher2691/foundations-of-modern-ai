@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>03-the-transformer</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+--fg: #1a1a1a; --muted: #5a5a5a; --bg: #fbfbf9; --card: #ffffff;
+--accent: #b4530f; --line: #e3e0d8; --good: #1a7f37; --warn: #b4530f;
+--code-bg: #f4f2ec;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d;
+}
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+.title { letter-spacing: -.02em; }
+blockquote strong { color: var(--fg); }
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">03-the-transformer</h1>
+</header>
+<h1 id="the-transformer--how-a-model-reads-tokens-and-predicts-the-next-one">The
+Transformer — How a Model Reads Tokens and Predicts the Next One</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 3 Builds on: <a href="02-data-and-tokenization.md">Chapter 2 — Data &amp;
+Tokenization</a> (we now have a clean stream of tokens) Scope: the
+architecture that consumes tokens — built up from scratch, with
+<strong>no prior math assumed</strong>. The one idea to master is
+<em>attention</em>.</p>
+</blockquote>
+<hr />
+<h2 id="0-the-job-were-designing-a-machine-to-do">0. The job we&#39;re
+designing a machine to do</h2>
+<p>By the end of Chapter 2 we have a stream of integer
+<strong>tokens</strong>. The Transformer&#39;s entire job is embarrassingly
+narrow:</p>
+<blockquote>
+<p><strong>Given the tokens so far, predict a probability for every
+possible next token.</strong></p>
+</blockquote>
+<p>That&#39;s it. &quot;Write me a poem,&quot; &quot;debug this code,&quot; &quot;explain
+photosynthesis&quot; — all of it is this one operation, run over and over
+(we&#39;ll see how in Chapter 6). So the whole of this chapter answers:
+<em>what kind of machine can look at a sequence of tokens and produce a
+good guess at the next one?</em></p>
+<p>The 2017 answer — the <strong>Transformer</strong> (&quot;Attention Is All
+You Need&quot;) — now underlies essentially every frontier model. We&#39;ll build
+it in five moves: <strong>embeddings → attention → multiple heads → the
+full block → stacking</strong>.</p>
+<hr />
+<h2 id="1-move-1-tokens-become-vectors-embeddings">1. Move 1: Tokens
+become vectors (embeddings)</h2>
+<p>An integer like <code>1257</code> carries no meaning —
+<code>1258</code> isn&#39;t &quot;one more&quot; in any useful sense. So the first
+thing the model does is replace each token ID with a long list of
+numbers called an <strong>embedding vector</strong> (think: a few
+thousand numbers per token).</p>
+<p>The trick is that <strong>meaning becomes direction in
+space.</strong> During training the model arranges these vectors so that
+related tokens sit near each other and relationships become consistent
+directions:</p>
+<pre><code>        cat • • kitten
+           •
+        dog • • puppy
+                              • king
+                                 \  (roughly the same step:
+                              • queen   &quot;add femaleness&quot;)
+        • man ──────────────► • woman</code></pre>
+<p>The famous illustration: <code>king − man + woman ≈ queen</code>. You
+don&#39;t program this; it <em>emerges</em> because vectors that help
+predict the next token well end up geometrically sensible.</p>
+<blockquote>
+<p><strong>Key reframe:</strong> inside the model, every token is a
+point in a high-dimensional &quot;meaning space.&quot; Everything that follows is
+about <em>moving those points around</em> until they encode not just
+each word, but each word <em>in this particular context</em>.</p>
+</blockquote>
+<hr />
+<h2 id="2-the-core-problem-meaning-depends-on-neighbours">2. The core
+problem: meaning depends on neighbours</h2>
+<p>A word&#39;s embedding starts out <strong>context-free</strong> — the
+token <code>bank</code> gets the same starting vector in both:</p>
+<ul>
+<li>&quot;I sat on the river <strong>bank</strong>.&quot;</li>
+<li>&quot;I deposited cash at the <strong>bank</strong>.&quot;</li>
+</ul>
+<p>But the <em>right</em> meaning depends on the other words. So the
+machine needs a way for each token to <strong>look at the other tokens
+and update itself</strong> accordingly. &quot;river&quot; should pull
+<code>bank</code> toward the geography meaning; &quot;cash&quot; toward the
+finance meaning.</p>
+<p>That mechanism is <strong>attention</strong>. It is the heart of the
+Transformer, and the next section is the most important page in this
+series so far.</p>
+<hr />
+<h2 id="3-move-2-attention--letting-tokens-look-at-each-other">3. Move
+2: Attention — letting tokens look at each other</h2>
+<p>Here is the idea without any equations. Every token produces three
+things from its current vector:</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Plain-English meaning</th>
+<th>Library analogy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Query</strong></td>
+<td>&quot;Here&#39;s what I&#39;m looking for.&quot;</td>
+<td>The search request you type.</td>
+</tr>
+<tr>
+<td><strong>Key</strong></td>
+<td>&quot;Here&#39;s what I&#39;m about.&quot;</td>
+<td>The label on the spine of each book.</td>
+</tr>
+<tr>
+<td><strong>Value</strong></td>
+<td>&quot;Here&#39;s what I actually offer.&quot;</td>
+<td>The content inside that book.</td>
+</tr>
+</tbody>
+</table>
+<p>Attention is then a three-step dance, performed for <strong>every
+token at once</strong>:</p>
+<ol type="1">
+<li><strong>Match.</strong> A token&#39;s <em>Query</em> is compared against
+the <em>Key</em> of every other token. Good matches score high. (For
+<code>bank</code>, its query &quot;what disambiguates me?&quot; matches the key of
+<code>cash</code> strongly.)</li>
+<li><strong>Weight.</strong> Those match scores are turned into
+percentages that add to 100% (via a function called <em>softmax</em>) —
+the token&#39;s &quot;attention weights.&quot;</li>
+<li><strong>Blend.</strong> The token pulls in a weighted mix of
+everyone&#39;s <em>Values</em>, according to those percentages, and adds it
+to itself.</li>
+</ol>
+<pre><code>   &quot;cash&quot;   &quot;at&quot;   &quot;the&quot;   &quot;bank&quot; ← this token is updating itself
+     │        │      │       │
+   Key      Key    Key     Query  &quot;what should I pay attention to?&quot;
+     \________\______\______/
+                  match → weights:   cash 0.7  the 0.1  at 0.1  bank 0.1
+                  blend their Values by those weights
+                            │
+                            ▼
+              &quot;bank&quot; is now nudged toward the *finance* meaning</code></pre>
+<p>After this step, <code>bank</code>&#39;s vector is no longer context-free
+— it has literally absorbed a bit of <code>cash</code>.
+<strong>Attention is how context gets mixed into each token.</strong>
+Because every token does this simultaneously against every other token,
+the model captures relationships across the whole sequence in one shot —
+short-range <em>and</em> long-range alike.</p>
+<blockquote>
+<p>Why &quot;Attention Is All You Need&quot;: earlier models (RNNs) read
+left-to-right one step at a time, so distant words were hard to connect
+and training couldn&#39;t be parallelized. Attention compares all positions
+directly and in parallel — which is exactly what made models scalable to
+today&#39;s sizes.</p>
+</blockquote>
+<h3 id="one-wrinkle-for-generation-no-peeking-ahead">One wrinkle for
+generation: no peeking ahead</h3>
+<p>When the model is learning to predict the <em>next</em> token, it
+must not look at tokens that come <em>after</em> the one it&#39;s predicting
+(that would be cheating). So during this process a <strong>causal
+mask</strong> hides future positions: each token may attend only to
+itself and the tokens <em>before</em> it. This is why generation is
+called <strong>autoregressive</strong> — it builds the sequence strictly
+left to right.</p>
+<hr />
+<h2 id="4-move-3-many-heads-many-kinds-of-relationship">4. Move 3: Many
+heads, many kinds of relationship</h2>
+<p>One attention operation learns <em>one kind</em> of relationship. But
+language has many simultaneously: grammatical subject↔︎verb,
+pronoun↔︎referent, adjective↔︎noun, topic↔︎topic.</p>
+<p>So Transformers run several attention operations in parallel —
+<strong>multi-head attention</strong>. Each &quot;head&quot; gets its own
+Queries/Keys/Values and specializes:</p>
+<pre><code>   Head 1: tracks subject ↔ verb agreement
+   Head 2: links pronouns (&quot;it&quot;) ↔ what they refer to
+   Head 3: connects adjectives ↔ their nouns
+   Head 4: follows long-range topic threads
+   ...   (dozens of heads, learned automatically)
+        │
+        └─► their results are combined back into each token&#39;s vector</code></pre>
+<p>Nobody assigns these jobs; the heads differentiate on their own
+during training because diverse &quot;viewpoints&quot; predict the next token
+better than one. (Researchers later probe a trained model to discover
+what each head learned.)</p>
+<hr />
+<h2 id="5-move-4-the-full-transformer-block">5. Move 4: The full
+Transformer block</h2>
+<p>Attention mixes information <em>between</em> tokens. But each token
+also needs to <em>think</em> about what it just absorbed. So a
+Transformer <strong>block</strong> pairs attention with a second
+component:</p>
+<table>
+<thead>
+<tr>
+<th>Sub-layer</th>
+<th>What it does</th>
+<th>One-liner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-head attention</strong></td>
+<td>Mixes context between tokens</td>
+<td>&quot;Gather relevant info from the sequence.&quot;</td>
+</tr>
+<tr>
+<td><strong>Feed-forward network (MLP)</strong></td>
+<td>Processes each token on its own</td>
+<td>&quot;Now think hard about what I gathered.&quot;</td>
+</tr>
+</tbody>
+</table>
+<p>Two structural tricks make deep stacks of these blocks trainable —
+worth naming because you&#39;ll hear them constantly:</p>
+<ul>
+<li><strong>Residual connections</strong> — each sub-layer <em>adds</em>
+its result to its input instead of replacing it
+(<code>output = input + change</code>). Information can flow straight
+through, so signals (and learning) don&#39;t get lost in a deep stack.</li>
+<li><strong>Layer normalization</strong> — re-scales the numbers at each
+step to keep them in a stable range, preventing them from exploding or
+vanishing.</li>
+</ul>
+<pre><code>   token vectors in
+        │
+   ┌────▼─────────────────┐
+   │  Multi-head attention │  ── add back to input (residual) + normalize
+   └────┬─────────────────┘
+   ┌────▼─────────────────┐
+   │  Feed-forward (MLP)   │  ── add back to input (residual) + normalize
+   └────┬─────────────────┘
+        ▼
+   token vectors out  (same shape, richer meaning)</code></pre>
+<p>A block takes in token vectors and hands back token vectors of the
+same shape — just <em>more contextually informed</em>. Which means you
+can stack them.</p>
+<hr />
+<h2 id="6-move-5-stack-the-blocks--depth-builds-abstraction">6. Move 5:
+Stack the blocks — depth builds abstraction</h2>
+<p>A real model stacks <strong>dozens to hundreds</strong> of these
+identical blocks. Each layer refines the representation a little
+further, and a rough hierarchy emerges:</p>
+<pre><code>   Layer 1–3    surface: spelling, word boundaries, simple syntax
+   Layer 4–10   phrases, grammar, who-did-what-to-whom
+   Layer 11–30  meaning, references, factual associations
+   Deeper       abstract reasoning, task structure, &quot;intent&quot;
+        │
+        ▼
+   a final vector for each position, rich with context</code></pre>
+<p>This mirrors the embedding intuition from Move 1: low layers handle
+form, high layers handle meaning. Depth is <em>why</em> large models
+reason in ways small ones can&#39;t.</p>
+<h3 id="one-more-ingredient-position">One more ingredient: position</h3>
+<p>Attention, by itself, is <strong>order-blind</strong> — it sees a
+<em>set</em> of tokens, not a sequence, so &quot;dog bites man&quot; and &quot;man
+bites dog&quot; would look identical. Transformers fix this by adding
+<strong>positional information</strong> to each token (a &quot;position 1,
+position 2…&quot; signal baked into the vectors). Now order is part of the
+meaning.</p>
+<hr />
+<h2 id="7-from-the-top-of-the-stack-to-an-actual-next-token">7. From the
+top of the stack to an actual next token</h2>
+<p>After the final block, each position has a context-rich vector. To
+turn the <em>last</em> position&#39;s vector into a prediction:</p>
+<ol type="1">
+<li><strong>Project to vocabulary scores (logits).</strong> Multiply by
+the vocabulary to get one raw score per possible token — say 100,000
+numbers, one per token in the vocabulary.</li>
+<li><strong>Softmax to probabilities.</strong> Convert those scores into
+percentages that sum to 100%.</li>
+<li><strong>Sample.</strong> Pick the next token from that distribution
+(greedily, or with controlled randomness — the <em>temperature</em>
+setting from Chapter 6).</li>
+</ol>
+<pre><code>   final vector ──► [logits: one score per token] ──► softmax ──► probabilities
+                                                                      │
+        &quot; The cat sat on the ___ &quot;                                    ▼
+                                          mat   0.41  ┐
+                                          floor 0.18  │  ← sample one
+                                          sofa  0.07  │
+                                          ...         ┘</code></pre>
+<p>Append the chosen token to the input and <strong>run the whole
+machine again</strong> for the next one. That loop — covered in Chapter
+6 — is how a next-token predictor writes essays, code, and proofs.</p>
+<hr />
+<h2 id="8-why-the-transformer-won">8. Why the Transformer won</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Why it mattered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Parallelism</strong></td>
+<td>All positions processed at once → trains efficiently on huge GPU
+clusters (RNNs couldn&#39;t).</td>
+</tr>
+<tr>
+<td><strong>Long-range links</strong></td>
+<td>Any token can attend to any other directly → no &quot;forgetting&quot; across
+long text.</td>
+</tr>
+<tr>
+<td><strong>Scales cleanly</strong></td>
+<td>Just add more blocks, wider vectors, more data → predictably better
+(the <em>scaling laws</em> of Chapter 4).</td>
+</tr>
+<tr>
+<td><strong>General-purpose</strong></td>
+<td>The same architecture handles text, code, images, audio — only the
+tokenizer changes.</td>
+</tr>
+</tbody>
+</table>
+<p>That combination is why one 2017 design now underlies essentially
+every frontier AI system.</p>
+<hr />
+<h2 id="9-recap">9. Recap</h2>
+<ul>
+<li>The Transformer does one thing: <strong>read the tokens so far,
+output a probability for each possible next token.</strong></li>
+<li><strong>Embeddings</strong> turn tokens into vectors where
+<em>meaning is direction</em>.</li>
+<li><strong>Attention</strong> lets every token look at every other
+(Query matches Key, blend the Values) so context is mixed into each
+token. A <strong>causal mask</strong> stops it peeking ahead, making
+generation left-to-right.</li>
+<li><strong>Multi-head</strong> attention learns many relationship types
+at once; <strong>stacking</strong> blocks builds abstraction from
+spelling up to reasoning. <strong>Residuals + layer-norm</strong> keep
+deep stacks trainable; <strong>positional</strong> signals restore word
+order.</li>
+<li>The top of the stack becomes <strong>logits → softmax → a sampled
+next token</strong>, then the loop repeats.</li>
+</ul>
+<hr />
+<h2 id="next-up">Next up</h2>
+<p><strong>Chapter 4 — Pretraining mechanics:</strong> we have the
+machine; how does it actually <em>learn</em>? We&#39;ll cover the loss
+function, gradient descent, what &quot;training&quot; physically does to those
+billions of parameters, and the <strong>scaling laws</strong> that
+predict how much smarter a model gets with more data and compute.</p>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+</body>
+</html>
