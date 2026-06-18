@@ -19,6 +19,8 @@ build_one() {
     --standalone \
     --embed-resources \
     --css=style.css \
+    --include-in-header=partials/theme-head.html \
+    --include-after-body=partials/theme-toggle.html \
     --metadata title="${md%.md}" \
     --output "$html"
   echo "  ✓ $md → $html"
@@ -27,9 +29,10 @@ build_one() {
 if [ "$#" -ge 1 ]; then
   build_one "$1"
 else
-  echo "Building all .md files…"
+  echo "Building all chapter .md files…"
   for md in *.md; do
     [ -e "$md" ] || continue
+    [ "$md" = "README.md" ] && continue   # README is for GitHub, not a site page
     build_one "$md"
   done
 fi

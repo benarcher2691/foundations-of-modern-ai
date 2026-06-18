@@ -18,9 +18,9 @@
 <style>
   /* Default theme = follow the OS. A data-theme attribute overrides it. */
   :root {
-    --fg: #1a1a1a; --muted: #5a5a5a; --bg: #fbfbf9; --card: #ffffff;
-    --accent: #b4530f; --line: #e3e0d8; --shadow: rgba(40,30,10,.06);
-    --planned: #9a968c;
+    --fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+    --accent: #a8490b; --line: #dbcfb6; --shadow: rgba(60,45,15,.10);
+    --planned: #948c78;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
@@ -30,9 +30,9 @@
     }
   }
   :root[data-theme="light"] {
-    --fg: #1a1a1a; --muted: #5a5a5a; --bg: #fbfbf9; --card: #ffffff;
-    --accent: #b4530f; --line: #e3e0d8; --shadow: rgba(40,30,10,.06);
-    --planned: #9a968c;
+    --fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+    --accent: #a8490b; --line: #dbcfb6; --shadow: rgba(60,45,15,.10);
+    --planned: #948c78;
   }
   :root[data-theme="dark"] {
     --fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
@@ -64,16 +64,11 @@
   .toggle:active { transform: scale(.96); }
   .toggle .icon { width: 16px; height: 16px; display: inline-block; }
   /* Show the icon/label for the theme you'd switch TO. */
-  .toggle .to-dark { display: none; }
-  :root[data-theme="dark"] .toggle .to-dark,
-  :root:not([data-theme]) .toggle .to-dark { display: inline-flex; align-items: center; gap: 7px; }
-  :root[data-theme="dark"] .toggle .to-light,
-  :root:not([data-theme]) .toggle .to-light { display: none; }
-  :root[data-theme="light"] .toggle .to-light { display: inline-flex; align-items: center; gap: 7px; }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme]) .toggle .to-dark { display: inline-flex; align-items: center; gap: 7px; }
-    :root:not([data-theme]) .toggle .to-light { display: none; }
-  }
+  .toggle .to-dark, .toggle .to-light { display: none; }
+  :root[data-theme="light"] .toggle .to-dark { display: inline-flex; align-items: center; gap: 7px; }
+  :root[data-theme="dark"]  .toggle .to-light { display: inline-flex; align-items: center; gap: 7px; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme]) .toggle .to-dark { display: inline-flex; align-items: center; gap: 7px; } }
+  @media (prefers-color-scheme: dark)  { :root:not([data-theme]) .toggle .to-light { display: inline-flex; align-items: center; gap: 7px; } }
 
   .intro { color: var(--muted); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
     margin: 30px 0 36px; padding: 22px 0; font-size: .97rem; }
@@ -187,17 +182,20 @@
         <span class="arrow">→</span>
       </a>
     </li>
+    <li>
+      <a class="chapter" href="06-inference-and-applications.html">
+        <span class="num">6</span>
+        <span class="body">
+          <p class="ch-title">Inference &amp; Applications</p>
+          <p class="ch-desc">The generation loop, prompting, the context window, retrieval (RAG), tools, and agents.</p>
+        </span>
+        <span class="arrow">→</span>
+      </a>
+    </li>
   </ul>
 
   <h2 class="section">Planned</h2>
   <ul class="chapters">
-    <li class="planned">
-      <span class="num">6</span>
-      <span class="body">
-        <p class="ch-title">Inference &amp; Applications <span class="badge">soon</span></p>
-        <p class="ch-desc">Prompting, the context window, retrieval (RAG), tools, and agents.</p>
-      </span>
-    </li>
     <li class="planned">
       <span class="num">7</span>
       <span class="body">

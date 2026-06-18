@@ -15,8 +15,9 @@ Each chapter exists as a Markdown source of truth (`.md`) and a self-contained, 
 | 3 | The Transformer — how a model reads tokens and predicts the next one | [`.md`](03-the-transformer.md) | [`.html`](03-the-transformer.html) |
 | 4 | Pretraining Mechanics — loss, gradient descent, and scaling laws | [`.md`](04-pretraining-mechanics.md) | [`.html`](04-pretraining-mechanics.html) |
 | 5 | Alignment — turning a raw predictor into a helpful, honest, harmless assistant | [`.md`](05-alignment.md) | [`.html`](05-alignment.html) |
+| 6 | Inference & Applications — generation, prompting, RAG, tools, and agents | [`.md`](06-inference-and-applications.md) | [`.html`](06-inference-and-applications.html) |
 
-*Planned:* Chapter 6 — Inference & Applications · Chapter 7 — Evaluation & Safety.
+*Planned:* Chapter 7 — Evaluation & Safety.
 
 ## Building the HTML
 

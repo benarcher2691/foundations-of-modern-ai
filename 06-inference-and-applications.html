@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>06-inference-and-applications</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+:root {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme]) {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+}
+:root[data-theme="light"] {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+:root[data-theme="dark"] {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+transition: background .25s ease, color .25s ease;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+blockquote strong { color: var(--fg); }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+
+.theme-toggle {
+position: fixed; top: 16px; right: 16px; z-index: 100;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:active { transform: scale(.95); }
+.theme-toggle .icon { width: 15px; height: 15px; }
+
+.theme-toggle .to-dark, .theme-toggle .to-light { display: none; align-items: center; gap: 6px; }
+:root[data-theme="light"] .theme-toggle .to-dark { display: inline-flex; }
+:root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
+@media (max-width: 640px) { .theme-toggle .label { display: none; } .theme-toggle { padding: 7px; } }
+</style>
+  <script>
+    /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+    (function () {
+      try {
+        var t = localStorage.getItem('foam-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">06-inference-and-applications</h1>
+</header>
+<h1 id="inference--applications--putting-the-model-to-work">Inference
+&amp; Applications — Putting the Model to Work</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 6 Builds on: <a href="05-alignment.md">Chapter 5 — Alignment</a> (we now have a trained,
+aligned assistant) Scope: how a finished model is actually <em>used</em>
+— the generation loop, sampling, the context window, prompting,
+retrieval (RAG), tools, and agents. The layer where most application
+developers work.</p>
+</blockquote>
+<hr />
+<h2 id="0-from-a-trained-model-to-a-useful-product">0. From &quot;a trained
+model&quot; to &quot;a useful product&quot;</h2>
+<p>Chapters 2–5 built a model. This chapter is about everything that
+happens <em>afterward</em>, every time you press enter. Two reframes set
+the scene:</p>
+<ul>
+<li><strong>Inference</strong> is the act of running the finished model
+to generate output. Unlike training, the parameters no longer change —
+they&#39;re frozen. Inference is what you pay for per use, and it&#39;s
+<em>cheap per query</em> compared to the one-time training cost (Chapter
+4).</li>
+<li><strong>The model is a component, not the product</strong> (the
+closing idea of Chapter 1). What users experience is the model
+<em>plus</em> a system around it: prompting, memory, retrieval, tools,
+guardrails. This chapter builds that system up, layer by layer,
+motivated each time by something the bare model <em>can&#39;t</em> do.</li>
+</ul>
+<hr />
+<h2 id="1-the-generation-loop">1. The generation loop</h2>
+<p>Recall the Transformer&#39;s one trick (Chapter 3): given the tokens so
+far, output a probability for every possible next token. Generation just
+runs that trick in a loop:</p>
+<pre><code>   prompt: &quot;The capital of France is&quot;
+        │
+        ▼
+   ┌─────────────────────────────────────────────┐
+   │ 1. run the model over all tokens so far       │
+   │ 2. get probabilities for the next token       │
+   │ 3. pick one token  →  &quot; Paris&quot;                 │
+   │ 4. append it to the sequence                   │
+   │ 5. go back to step 1                           │
+   └─────────────────────────────────────────────┘
+        │  (stop at an end-of-text token or a length limit)
+        ▼
+   &quot;The capital of France is Paris.&quot;</code></pre>
+<p>This is <strong>autoregressive</strong> generation: each token is
+produced using all the tokens before it, then fed back in. Two practical
+notes you&#39;ll hear:</p>
+<ul>
+<li><strong>Prefill vs. decode.</strong> Processing your whole prompt at
+once (fast, parallel) is <em>prefill</em>; generating new tokens
+one-at-a-time (sequential, slower) is <em>decode</em>. This is why a
+long answer streams out gradually while the prompt is digested almost
+instantly.</li>
+<li><strong>The KV cache.</strong> To avoid re-computing attention over
+the whole history at every step, the model caches its intermediate
+results for past tokens. This cache is the main consumer of memory
+during inference and a major target of optimization.</li>
+</ul>
+<hr />
+<h2 id="2-sampling-how-the-next-token-is-chosen">2. Sampling: how the
+next token is <em>chosen</em></h2>
+<p>Step 3 above — &quot;pick one token&quot; — hides a real choice. The model
+gives a <em>probability distribution</em>; how we draw from it shapes
+the output&#39;s character.</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>How it picks</th>
+<th>Feels like</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Greedy</strong></td>
+<td>Always take the single highest-probability token</td>
+<td>Deterministic, safe, can be repetitive/flat</td>
+</tr>
+<tr>
+<td><strong>Sampling</strong></td>
+<td>Draw randomly, weighted by the probabilities</td>
+<td>Varied, creative, occasionally off</td>
+</tr>
+</tbody>
+</table>
+<p>Two dials control sampling:</p>
+<ul>
+<li><strong>Temperature</strong> (the setting promised back in Chapter
+3). Low temperature sharpens the distribution toward the top choices
+(focused, predictable); high temperature flattens it (diverse, riskier).
+~0 ≈ greedy; ~0.7 is a common balance; high values get wild.</li>
+<li><strong>Top-p / top-k</strong> (&quot;nucleus&quot; sampling). Only consider
+the most probable tokens — the top <em>k</em> of them, or the smallest
+set whose probabilities sum to <em>p</em> — then sample within that.
+This trims the long tail of bizarre options while keeping useful
+variety.</li>
+</ul>
+<pre><code>   next-token probabilities:  mat ████████ floor ███ sofa █ rug ▌ ... (tail)
+   low temperature  →  almost always &quot;mat&quot;
+   high temperature →  &quot;mat&quot; usually, but &quot;floor&quot;/&quot;sofa&quot; get real chances
+   top-p            →  discard the tail entirely, sample among {mat, floor, sofa}</code></pre>
+<blockquote>
+<p>Why deliberately add randomness? Because pure greedy decoding tends
+to produce dull, looping text, and because variety is often
+<em>wanted</em> (brainstorming, writing). The same model can be tuned
+factual-and-steady or loose-and-creative purely by these settings — no
+retraining.</p>
+</blockquote>
+<hr />
+<h2 id="3-the-context-window-the-models-entire-world">3. The context
+window: the model&#39;s entire world</h2>
+<p>Here is the single most important concept for <em>using</em> models.
+<strong>A model has no memory between calls.</strong> It is a pure
+function: tokens in → next token out. Everything it &quot;knows&quot; about your
+conversation must be present in its input <em>right now</em>.</p>
+<p>That input is the <strong>context window</strong> — a fixed maximum
+number of tokens (Chapter 2) the model can attend to at once, today
+ranging from thousands to millions.</p>
+<pre><code>   ┌──────────────────── CONTEXT WINDOW (e.g. 200,000 tokens) ───────────────────┐
+   │ [system prompt]  the hidden instructions: &quot;You are a helpful assistant…&quot;      │
+   │ [user]    earlier message                                                     │
+   │ [assistant] earlier reply        ← the whole conversation history is re-sent   │
+   │ [user]    your latest message                                                 │
+   │ [retrieved documents, if any]                                                 │
+   └──────────────────────────────────────────────────────────────────────────────┘
+                         everything the model can &quot;see&quot; this turn</code></pre>
+<p>Consequences worth internalizing:</p>
+<ul>
+<li><strong>A chatbot feels like it remembers only because the app
+re-sends the history every turn.</strong> The model itself is stateless.
+Run out of window and the oldest turns must be dropped or summarized —
+the model genuinely &quot;forgets&quot; them.</li>
+<li><strong>The system prompt</strong> is just text placed at the front
+of the window — the chat-role markers from Chapter 2 telling the model
+who it is and the rules. It&#39;s powerful precisely because it sits in
+every turn&#39;s context.</li>
+<li><strong>Cost and latency scale with context</strong> (Chapter 2:
+everything is tokens). A huge window is useful but not free.</li>
+</ul>
+<p>This statelessness is exactly what motivates the next three layers —
+they&#39;re all techniques for <em>getting the right tokens into the
+window.</em></p>
+<hr />
+<h2 id="4-prompting-programming-in-plain-language">4. Prompting:
+programming in plain language</h2>
+<p>Since the context window is all the model sees, <strong>how you fill
+it is the primary control surface.</strong> This is <em>prompting</em>,
+and a few reliable ideas:</p>
+<ul>
+<li><strong>Instructions.</strong> Clear, specific asks beat vague ones.
+Stating the role, format, and constraints up front steers the output a
+lot.</li>
+<li><strong>Few-shot examples.</strong> Putting a handful of
+input→output examples <em>in the prompt</em> teaches the model the
+pattern on the spot. This is <strong>in-context learning</strong> — a
+remarkable property that emerged from pretraining: the model adapts to a
+task from examples <em>without any parameter change</em>, purely by
+pattern-matching within the window.</li>
+<li><strong>Reasoning prompts.</strong> Asking the model to &quot;think step
+by step&quot; (chain-of-thought) often improves hard reasoning, because it
+generates intermediate tokens to build on rather than leaping to an
+answer. Newer &quot;reasoning models&quot; bake this habit in.</li>
+</ul>
+<blockquote>
+<p>Prompting is best understood as <em>soft programming</em>: you&#39;re not
+changing the model, you&#39;re arranging its context so the next-token
+machine is overwhelmingly likely to produce what you want. It&#39;s the
+cheapest, fastest lever — try it before anything heavier.</p>
+</blockquote>
+<hr />
+<h2 id="5-what-prompting-alone-cant-fix">5. What prompting alone can&#39;t
+fix</h2>
+<p>Even a perfectly prompted model has hard limits, all stemming from
+<em>what&#39;s in the window</em> and <em>how it was trained</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Limitation</th>
+<th>Why it happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Knowledge cutoff</strong></td>
+<td>It only knows what was in its training data, frozen at a past date.
+It can&#39;t know today&#39;s news.</td>
+</tr>
+<tr>
+<td><strong>No private/live data</strong></td>
+<td>Your company&#39;s docs, a user&#39;s account, a live price — none of it was
+in training.</td>
+</tr>
+<tr>
+<td><strong>Hallucination</strong></td>
+<td>It generates <em>plausible</em> tokens, not <em>verified</em> ones.
+Asked something it doesn&#39;t know, it may fabricate confidently.</td>
+</tr>
+<tr>
+<td><strong>Can&#39;t act</strong></td>
+<td>It outputs text. By itself it can&#39;t run code, search, send email, or
+change anything in the world.</td>
+</tr>
+</tbody>
+</table>
+<p>The last three layers of the chapter each remove one of these
+walls.</p>
+<hr />
+<h2 id="6-retrieval-augmented-generation-rag-giving-it-the-right-facts">6.
+Retrieval-Augmented Generation (RAG): giving it the right facts</h2>
+<p><strong>RAG fixes the knowledge limits</strong> by fetching relevant
+text at query time and placing it in the context window <em>before</em>
+the model answers. The model then answers <em>from the provided
+documents</em> rather than from memory.</p>
+<p>The key enabling idea is <strong>embeddings</strong> (Chapter 3:
+meaning as direction in space). Documents are pre-converted to vectors
+and stored; at query time your question is embedded too, and a
+<strong>vector search</strong> finds the documents whose meaning is
+nearest.</p>
+<pre><code>   knowledge base ──► chunk &amp; embed ──► [vector database]
+                                              ▲  nearest-meaning search
+   user question ──► embed ──────────────────┘
+        │
+        ▼
+   retrieved chunks + question  ──►  stuffed into the context window  ──►  model answers,
+                                                                          grounded &amp; citable</code></pre>
+<p>Why it matters: RAG lets a frozen model use <strong>current</strong>
+and <strong>private</strong> data, <strong>grounds</strong> answers in
+real sources (reducing hallucination), and supports
+<strong>citations</strong> — without any retraining. It&#39;s the workhorse
+pattern behind most &quot;chat with your documents / company knowledge&quot;
+products.</p>
+<hr />
+<h2 id="7-tools-function-calling-giving-it-hands">7. Tools (function
+calling): giving it hands</h2>
+<p><strong>Tools fix the &quot;can&#39;t act&quot; limit.</strong> The model is told,
+in its context, about a set of functions it may call — a calculator, a
+web search, a database query, code execution, any API. When useful,
+instead of answering in prose it emits a <strong>structured
+call</strong> (which function, which arguments). The surrounding system
+runs it and feeds the result back into the context.</p>
+<pre><code>   user: &quot;What&#39;s 4,317 × 89, and is it bigger than last quarter&#39;s revenue?&quot;
+        │
+        ▼
+   model emits →  calculator(4317 * 89)         ┐  the *system* executes these,
+   model emits →  db.query(&quot;Q3 revenue&quot;)         ┘  not the model
+        │  results returned into context: 384213, and 350000
+        ▼
+   model: &quot;It&#39;s 384,213 — yes, about 10% above last quarter&#39;s 350,000.&quot;</code></pre>
+<p>This turns a text generator into something that can <em>compute
+exactly</em> (covering for the arithmetic weakness from Chapter 2),
+<em>look things up live</em>, and <em>interact with real systems</em> —
+while the model&#39;s job stays the same: predict the next token, where the
+next token might be &quot;call this tool.&quot;</p>
+<hr />
+<h2 id="8-agents-giving-it-autonomy">8. Agents: giving it autonomy</h2>
+<p>An <strong>agent</strong> chains tools and reasoning into a
+<em>loop</em> aimed at a goal, deciding its own next step each time
+rather than answering in one shot:</p>
+<pre><code>   GOAL: &quot;Find the cheapest flight next Friday and draft an email about it.&quot;
+   ┌──► THINK   what should I do next?
+   │    ACT     call a tool (search flights / read calendar / draft text)
+   │    OBSERVE read the tool&#39;s result
+   └────┘  repeat until the goal is met, then respond</code></pre>
+<p>This <strong>think → act → observe</strong> loop lets a model tackle
+multi-step tasks: research, writing and running code, operating
+software, orchestrating many tools. Each pass, the growing transcript
+(plan, actions, results) lives in the context window, so the agent
+&quot;remembers&quot; within the task.</p>
+<blockquote>
+<p>Agents are where capability and <strong>risk</strong> rise together.
+A system that can take real actions can take <em>wrong</em> ones — bad
+tool calls, runaway loops, acting on a hallucination or a malicious
+instruction hidden in retrieved data (&quot;prompt injection&quot;). This is
+precisely why guardrails and <strong>evaluation/safety</strong> (Chapter
+7) become non-negotiable once a model can <em>do</em> things, not just
+<em>say</em> things.</p>
+</blockquote>
+<hr />
+<h2 id="9-how-the-layers-stack">9. How the layers stack</h2>
+<p>Each layer adds a capability the one below lacks — and you adopt only
+as much as the task needs:</p>
+<pre><code>   Base capability    a trained, aligned model                 (Chapters 2–5)
+        +  Prompting   shape the context in plain language       → steer behaviour
+        +  RAG         inject current / private facts            → ground &amp; cite
+        +  Tools       let it compute and act                    → exact &amp; connected
+        +  Agents      loop tools toward a goal                  → autonomous multi-step
+        ─────────────────────────────────────────────────────────────────────────
+        =  the AI product the user actually touches</code></pre>
+<p><strong>Reach for the lightest layer that works.</strong> Most needs
+are met by good prompting; add RAG when facts must be current or
+private; add tools when the model must compute or act; add agency only
+when a task genuinely needs multiple self-directed steps.</p>
+<hr />
+<h2 id="10-recap">10. Recap</h2>
+<ul>
+<li><strong>Inference</strong> runs the frozen model in an
+<strong>autoregressive loop</strong>: predict → pick → append → repeat.
+<em>Prefill</em> digests the prompt; <em>decode</em> streams the answer;
+the <em>KV cache</em> makes it efficient.</li>
+<li><strong>Sampling</strong> chooses each token:
+<strong>temperature</strong> and <strong>top-p/top-k</strong> trade
+focus against variety — tunable without retraining.</li>
+<li>The <strong>context window</strong> is the model&#39;s whole world; it
+is <strong>stateless</strong>, so the app re-sends history, system
+prompt, and any retrieved text every turn. Cost scales with tokens.</li>
+<li><strong>Prompting</strong> is soft programming — instructions,
+<strong>few-shot in-context learning</strong>, step-by-step reasoning —
+the cheapest lever.</li>
+<li>Bare models hit walls (knowledge cutoff, no private/live data,
+hallucination, can&#39;t act). <strong>RAG</strong> injects the right facts
+via embeddings + vector search; <strong>tools</strong> let it compute
+and act via structured calls; <strong>agents</strong> loop tools toward
+a goal.</li>
+<li>The product is the model <strong>plus</strong> these layers. Use the
+lightest one that works — and note that as autonomy rises, so does
+risk.</li>
+</ul>
+<hr />
+<h2 id="next-up">Next up</h2>
+<p><strong>Chapter 7 — Evaluation &amp; Safety:</strong> if a model (and
+the agents built on it) can now <em>do</em> things, how do we know it&#39;s
+any good — and that it&#39;s safe? Benchmarks, human/LLM judging,
+red-teaming, and what &quot;good&quot; even means.</p>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+  <span class="to-dark">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+    <span class="label">Dark</span>
+  </span>
+  <span class="to-light">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
+    <span class="label">Light</span>
+  </span>
+</button>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    function current() {
+      var a = document.documentElement.getAttribute('data-theme');
+      if (a) return a;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('foam-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

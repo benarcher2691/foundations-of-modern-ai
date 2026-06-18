@@ -1,0 +1,9 @@
+<script>
+  /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+  (function () {
+    try {
+      var t = localStorage.getItem('foam-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
