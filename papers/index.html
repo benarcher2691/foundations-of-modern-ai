@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landmark Papers — PDFs</title>
+<script>
+  // Match the theme chosen elsewhere on the site (shared localStorage key).
+  (function () {
+    try {
+      var t = localStorage.getItem('foam-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root {
+    --fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+    --accent: #a8490b; --line: #dbcfb6; --shadow: rgba(60,45,15,.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+      --accent: #e8884a; --line: #34322c; --shadow: rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+    --accent: #a8490b; --line: #dbcfb6; --shadow: rgba(60,45,15,.10);
+  }
+  :root[data-theme="dark"] {
+    --fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+    --accent: #e8884a; --line: #34322c; --shadow: rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 760px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+  }
+  a { color: var(--accent); }
+  .back { display: inline-block; font-size: .85rem; margin-bottom: 1.6em; text-decoration: none;
+    border: 1px solid var(--line); background: var(--card); border-radius: 100px; padding: 6px 13px;
+    box-shadow: 0 1px 4px var(--shadow); }
+  .back:hover { border-color: var(--accent); }
+  h1 { font-size: 1.9rem; letter-spacing: -.02em; margin: 0 0 .2em; }
+  .lead { color: var(--muted); margin: 0 0 2em; }
+  ol { list-style: none; padding: 0; margin: 0; counter-reset: p; display: grid; gap: 10px; }
+  li a.paper {
+    display: flex; gap: 14px; align-items: baseline; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+    box-shadow: 0 1px 3px var(--shadow); transition: border-color .15s ease, transform .1s ease;
+  }
+  li a.paper:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .yr { flex: none; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent); width: 3ch; }
+  .ttl { font-weight: 600; }
+  .by { color: var(--muted); font-size: .9rem; }
+  .note { margin-top: 2em; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 10px;
+    color: var(--muted); font-size: .92rem; }
+  footer { margin-top: 2.4em; padding-top: 1.2em; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+  <a class="back" href="../appendix-landmark-papers.html">← Back to the appendix</a>
+  <h1>Landmark Papers — PDFs</h1>
+  <p class="lead">The source PDFs for the <em>Foundations of Modern AI</em> appendix, for offline reading.</p>
+
+  <ol>
+    <li><a class="paper" href="01-turing-1936.pdf"><span class="yr">1936</span><span><span class="ttl">On Computable Numbers, with an Application to the Entscheidungsproblem</span><br><span class="by">Alan Turing</span></span></a></li>
+    <li><a class="paper" href="02-shannon-1948.pdf"><span class="yr">1948</span><span><span class="ttl">A Mathematical Theory of Communication</span><br><span class="by">Claude Shannon</span></span></a></li>
+    <li><a class="paper" href="03-rosenblatt-1958.pdf"><span class="yr">1958</span><span><span class="ttl">The Perceptron</span><br><span class="by">Frank Rosenblatt</span></span></a></li>
+    <li><a class="paper" href="05-lamport-1978.pdf"><span class="yr">1978</span><span><span class="ttl">Time, Clocks, and the Ordering of Events in a Distributed System</span><br><span class="by">Leslie Lamport</span></span></a></li>
+    <li><a class="paper" href="06-rumelhart-hinton-williams-1986.pdf"><span class="yr">1986</span><span><span class="ttl">Learning Representations by Back-Propagating Errors</span><br><span class="by">Rumelhart, Hinton &amp; Williams</span></span></a></li>
+    <li><a class="paper" href="07-brin-page-1998.pdf"><span class="yr">1998</span><span><span class="ttl">The Anatomy of a Large-Scale Hypertextual Web Search Engine</span><br><span class="by">Sergey Brin &amp; Larry Page</span></span></a></li>
+    <li><a class="paper" href="08-alexnet-2012.pdf"><span class="yr">2012</span><span><span class="ttl">ImageNet Classification with Deep Convolutional Neural Networks (AlexNet)</span><br><span class="by">Krizhevsky, Sutskever &amp; Hinton</span></span></a></li>
+    <li><a class="paper" href="09-attention-2017.pdf"><span class="yr">2017</span><span><span class="ttl">Attention Is All You Need</span><br><span class="by">Vaswani et al. (Google)</span></span></a></li>
+    <li><a class="paper" href="10-gpt3-2020.pdf"><span class="yr">2020</span><span><span class="ttl">Language Models are Few-Shot Learners (GPT-3)</span><br><span class="by">Brown et al. (OpenAI)</span></span></a></li>
+  </ol>
+
+  <p class="note"><strong>Not included:</strong> <em>Perceptrons</em> (Minsky &amp; Papert, 1969) is a book with no freely available full PDF — see the appendix entry for publisher and archive links.</p>
+
+  <footer>PDFs remain the property of their respective authors/publishers, included for educational reference.</footer>
+</body>
+</html>
