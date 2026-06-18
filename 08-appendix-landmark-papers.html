@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>08-appendix-landmark-papers</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+:root {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme]) {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+}
+:root[data-theme="light"] {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+:root[data-theme="dark"] {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+transition: background .25s ease, color .25s ease;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+blockquote strong { color: var(--fg); }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+
+.theme-toggle {
+position: fixed; top: 16px; right: 16px; z-index: 100;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:active { transform: scale(.95); }
+.theme-toggle .icon { width: 15px; height: 15px; }
+
+.theme-toggle .to-dark, .theme-toggle .to-light { display: none; align-items: center; gap: 6px; }
+:root[data-theme="light"] .theme-toggle .to-dark { display: inline-flex; }
+:root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
+@media (max-width: 640px) { .theme-toggle .label { display: none; } .theme-toggle { padding: 7px; } }
+</style>
+  <script>
+    /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+    (function () {
+      try {
+        var t = localStorage.getItem('foam-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">08-appendix-landmark-papers</h1>
+</header>
+<h1 id="appendix--landmark-papers">Appendix — Landmark Papers</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Appendix Builds on: the whole
+series (<a href="01-ai-system-lifecycle.md">Chapter 1</a> … <a href="07-evaluation-and-safety.md">Chapter 7</a>) Scope: ten
+foundational works the modern story rests on — each with a summary and
+why it mattered. PDFs are downloaded locally into <code>papers/</code>
+for offline study; that folder is <strong>not</strong> committed to the
+public repo (the files are copyrighted), so each entry also links to an
+online <strong>source</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="how-to-read-this-list">How to read this list</h2>
+<p>The chapters explained <em>how</em> a modern AI system works. This
+appendix traces <em>where the ideas came from</em> — an eight-decade
+arc:</p>
+<pre><code>  WHAT IS COMPUTATION?        Turing 1936
+  WHAT IS INFORMATION?        Shannon 1948
+  CAN A MACHINE LEARN?        Rosenblatt 1958  →  Minsky &amp; Papert 1969 (the limits)
+  HOW DOES IT LEARN (DEEPLY)? Rumelhart–Hinton–Williams 1986
+  THE INFRASTRUCTURE          Lamport 1978 (distributed) · Brin &amp; Page 1998 (web-scale data)
+  THE MODERN ERA              AlexNet 2012  →  Transformer 2017  →  GPT-3 2020</code></pre>
+<p>Each entry below links the paper to the chapter it underpins.</p>
+<hr />
+<h2 id="1-on-computable-numbers-with-an-application-to-the-entscheidungsproblem">1.
+On Computable Numbers, with an Application to the
+Entscheidungsproblem</h2>
+<p><strong>Alan Turing, 1936</strong> · <a href="papers/01-turing-1936.pdf">📄 PDF</a> · <a href="https://www.cs.virginia.edu/~robins/Turing_Paper_1936.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> To settle a question in mathematical logic
+(Hilbert&#39;s <em>Entscheidungsproblem</em> — is there a mechanical
+procedure to decide any mathematical statement?), Turing invented an
+abstract machine: an infinite tape, a read/write head, and a table of
+rules. He showed this simple device captures <em>everything</em> that
+can be mechanically computed, defined the <strong>universal
+machine</strong> that can simulate any other by reading its description
+as data, and proved some problems (the <strong>halting problem</strong>)
+are <em>undecidable</em> — no algorithm can solve them. The answer to
+Hilbert was therefore <em>no</em>.</p>
+<p><strong>Why it matters.</strong> This is the theoretical bedrock of
+computer science. The universal machine is the idea that <em>one</em>
+general-purpose computer, fed different programs, can do anything
+computable — which is exactly what a neural network running on a GPU is.
+Every chapter in this series ultimately runs on Turing&#39;s insight that
+computation is substrate-independent and programmable.</p>
+<hr />
+<h2 id="2-a-mathematical-theory-of-communication">2. A Mathematical
+Theory of Communication</h2>
+<p><strong>Claude Shannon, 1948</strong> · <a href="papers/02-shannon-1948.pdf">📄 PDF</a> · <a href="https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> Shannon founded <strong>information
+theory</strong> in a single paper. He defined the <strong>bit</strong>
+as the unit of information, introduced <strong>entropy</strong> as the
+measure of uncertainty in a source, and proved the limits of compression
+(source coding) and of reliable transmission over a noisy channel
+(channel capacity). He also modeled English as a statistical process —
+using n-gram approximations to <em>predict the next letter/word</em> —
+strikingly prefiguring language models.</p>
+<p><strong>Why it matters.</strong> Entropy is the direct ancestor of
+the <strong>cross-entropy loss</strong> that trains every model (<a href="04-pretraining-mechanics.md">Chapter 4</a>): &quot;how surprised was
+the model by the true next token&quot; <em>is</em> Shannon&#39;s surprise.
+Tokenization-as-compression (<a href="02-data-and-tokenization.md">Chapter 2</a>) and the very framing
+of language modeling as next-token prediction (<a href="03-the-transformer.md">Chapter 3</a>) are Shannon&#39;s legacy.
+Prediction and compression are two sides of one coin — his coin.</p>
+<hr />
+<h2 id="3-the-perceptron-a-probabilistic-model-for-information-storage-and-organization-in-the-brain">3.
+The Perceptron: A Probabilistic Model for Information Storage and
+Organization in the Brain</h2>
+<p><strong>Frank Rosenblatt, 1958</strong> · <a href="papers/03-rosenblatt-1958.pdf">📄 PDF</a> · <a href="https://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> Rosenblatt proposed the
+<strong>perceptron</strong>: an artificial neuron that takes weighted
+inputs, sums them, and fires if the sum crosses a threshold —
+<em>and</em> a learning rule that adjusts the weights from examples
+until the outputs are correct. Crucially, the machine <em>learns from
+data</em> rather than being hand-programmed.</p>
+<p><strong>Why it matters.</strong> This is the ancestor of every
+artificial neural network. The single weighted-sum-and-activation unit
+is still the atom inside the Transformer (<a href="03-the-transformer.md">Chapter 3</a>), and &quot;adjust weights from
+examples&quot; is the seed of all training (<a href="04-pretraining-mechanics.md">Chapter 4</a>). Modern models are, in
+a sense, perceptrons stacked billions deep.</p>
+<hr />
+<h2 id="4-perceptrons">4. Perceptrons</h2>
+<p><strong>Marvin Minsky &amp; Seymour Papert, 1969</strong> · <em>book
+— no free full PDF; see <a href="https://mitpress.mit.edu/9780262630221/perceptrons/">MIT Press</a>
+/ <a href="https://archive.org/details/perceptronsintro0000mins">Internet
+Archive</a></em></p>
+<p><strong>Summary.</strong> A rigorous mathematical analysis of what
+single-layer perceptrons <em>cannot</em> do. Most famously, they proved
+a one-layer perceptron cannot learn the <strong>XOR</strong> function
+(and, more generally, anything not linearly separable). They noted that
+multi-layer networks might overcome this, but no method to
+<em>train</em> such networks existed at the time.</p>
+<p><strong>Why it matters.</strong> The book&#39;s pessimism helped trigger
+the first <strong>&quot;AI winter,&quot;</strong> drying up neural-network funding
+for years. But it also framed the central challenge precisely: we need
+<em>deep</em> (multi-layer) networks, and we need a way to train them.
+That challenge stood open until backpropagation (next entry) answered it
+— making this the indispensable &quot;problem statement&quot; of deep learning.
+<em>(This is why it&#39;s a book and not a downloadable paper; the summary
+stands in for the text.)</em></p>
+<hr />
+<h2 id="5-time-clocks-and-the-ordering-of-events-in-a-distributed-system">5.
+Time, Clocks, and the Ordering of Events in a Distributed System</h2>
+<p><strong>Leslie Lamport, 1978</strong> · <a href="papers/05-lamport-1978.pdf">📄 PDF</a> · <a href="https://lamport.azurewebsites.net/pubs/time-clocks.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> In a system of computers with no shared
+clock, what does &quot;happened before&quot; even mean? Lamport defined a
+<strong>partial ordering</strong> of events via the
+<em>happened-before</em> relation, introduced <strong>logical
+clocks</strong> to timestamp events consistently, and showed how to
+build a <strong>total order</strong> — enabling distributed machines to
+agree on the sequence of events (the basis of <em>state-machine
+replication</em>).</p>
+<p><strong>Why it matters.</strong> This is foundational to distributed
+computing — the substrate that makes large-scale AI <em>physically
+possible</em>. Pretraining a frontier model spreads one computation
+across tens of thousands of coordinated machines (<a href="04-pretraining-mechanics.md">Chapter 4</a>), and serving it at
+scale (<a href="06-inference-and-applications.md">Chapter 6</a>) is a
+distributed-systems problem. The algorithms are different from ML, but
+without reliable distributed coordination there is no training run and
+no deployment.</p>
+<hr />
+<h2 id="6-learning-representations-by-back-propagating-errors">6.
+Learning Representations by Back-Propagating Errors</h2>
+<p><strong>David Rumelhart, Geoffrey Hinton, Ronald Williams,
+1986</strong> · <a href="papers/06-rumelhart-hinton-williams-1986.pdf">📄 PDF</a> · <a href="https://www.cs.toronto.edu/~hinton/absps/naturebp.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> This paper popularized
+<strong>backpropagation</strong>: an efficient way to compute, for every
+weight in a multi-layer network, how much it contributed to the output
+error — by propagating the error backward through the layers via the
+chain rule. With it, networks with <strong>hidden layers</strong> could
+finally be trained, and the authors showed those hidden units learn
+useful internal <strong>representations</strong> of the data on their
+own.</p>
+<p><strong>Why it matters.</strong> This is the answer to the challenge
+Minsky &amp; Papert posed — the algorithm that made deep learning
+trainable. It is <em>exactly</em> the mechanism behind <a href="04-pretraining-mechanics.md">Chapter 4</a>: backpropagation
+computes the gradients, gradient descent takes the step. Every model in
+this series learns by the method this paper made practical.</p>
+<hr />
+<h2 id="7-the-anatomy-of-a-large-scale-hypertextual-web-search-engine">7.
+The Anatomy of a Large-Scale Hypertextual Web Search Engine</h2>
+<p><strong>Sergey Brin &amp; Larry Page, 1998</strong> · <a href="papers/07-brin-page-1998.pdf">📄 PDF</a> · <a href="http://infolab.stanford.edu/pub/papers/google.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> The paper that introduced
+<strong>Google</strong>. It described <strong>PageRank</strong> —
+ranking web pages by the link structure of the web, treating a link as a
+vote weighted by the voter&#39;s own importance — and, just as importantly,
+the engineering of <strong>crawling, indexing, and serving</strong> the
+entire web at a scale no one had managed before.</p>
+<p><strong>Why it matters.</strong> Two legacies feed straight into
+modern AI. First, the discipline of <strong>harvesting and organizing
+web-scale text</strong> is the direct ancestor of the data pipelines in
+<a href="02-data-and-tokenization.md">Chapter 2</a> (the very web crawls
+that became training corpora). Second, PageRank&#39;s idea of <em>importance
+from structure</em> echoes in how models weigh relevance — and Google&#39;s
+later research lab produced the Transformer itself (next entries).</p>
+<hr />
+<h2 id="8-imagenet-classification-with-deep-convolutional-neural-networks-alexnet">8.
+ImageNet Classification with Deep Convolutional Neural Networks
+(AlexNet)</h2>
+<p><strong>Alex Krizhevsky, Ilya Sutskever, Geoffrey Hinton,
+2012</strong> · <a href="papers/08-alexnet-2012.pdf">📄 PDF</a> · <a href="https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf">source
+↗</a></p>
+<p><strong>Summary.</strong> A deep <strong>convolutional neural
+network</strong> that won the 2012 ImageNet competition by a stunning
+margin, roughly halving the previous error rate. Its winning
+combination: a deep architecture trained on <strong>GPUs</strong>, the
+<strong>ReLU</strong> activation for faster training,
+<strong>dropout</strong> to curb overfitting, and heavy <strong>data
+augmentation</strong> — all fed by a massive labeled dataset.</p>
+<p><strong>Why it matters.</strong> This is the empirical &quot;big bang&quot; of
+the deep-learning era. It proved that <strong>depth + big data + GPU
+compute</strong> decisively beats hand-crafted features, and it set off
+the wave of investment and research that everything since rides on. The
+recipe it validated — scale the network, scale the data, scale the
+hardware — is precisely the scaling thesis formalized in <a href="04-pretraining-mechanics.md">Chapter 4</a>.</p>
+<hr />
+<h2 id="9-attention-is-all-you-need">9. Attention Is All You Need</h2>
+<p><strong>Ashish Vaswani et al. (Google), 2017</strong> · <a href="papers/09-attention-2017.pdf">📄 PDF</a> · <a href="https://arxiv.org/abs/1706.03762">source ↗</a></p>
+<p><strong>Summary.</strong> Introduced the
+<strong>Transformer</strong>, an architecture built entirely on
+<strong>self-attention</strong> — letting every token directly attend to
+every other — with <strong>multi-head attention</strong> and
+<strong>positional encodings</strong>, and <em>no recurrence</em>.
+Removing the sequential bottleneck of earlier models made training
+massively <strong>parallelizable</strong> and long-range dependencies
+easy to capture.</p>
+<p><strong>Why it matters.</strong> This is the architecture of <a href="03-the-transformer.md">Chapter 3</a> and the direct foundation of
+essentially every modern LLM (the &quot;T&quot; in GPT). Its parallelism is
+<em>what made models scalable</em> to the sizes <a href="04-pretraining-mechanics.md">Chapter 4</a> describes. If one paper
+is the hinge between &quot;old&quot; and &quot;modern&quot; AI, it&#39;s this one.</p>
+<hr />
+<h2 id="10-language-models-are-few-shot-learners-gpt-3">10. Language
+Models are Few-Shot Learners (GPT-3)</h2>
+<p><strong>Tom Brown et al. (OpenAI), 2020</strong> · <a href="papers/10-gpt3-2020.pdf">📄 PDF</a> · <a href="https://arxiv.org/abs/2005.14165">source ↗</a></p>
+<p><strong>Summary.</strong> OpenAI scaled a Transformer language model
+to <strong>175 billion parameters</strong> and showed that, at that
+scale, the model performs new tasks from just a few examples <em>in the
+prompt</em> — <strong>in-context (few-shot) learning</strong> — with
+<strong>no gradient updates or fine-tuning</strong>. Capability emerged
+from scale plus a plain next-token objective.</p>
+<p><strong>Why it matters.</strong> GPT-3 demonstrated the payoff of the
+<strong>scaling laws</strong> (<a href="04-pretraining-mechanics.md">Chapter 4</a>) and put
+<strong>in-context learning / prompting</strong> (<a href="06-inference-and-applications.md">Chapter 6</a>) at the center of
+how we use models. It turned language models from research curiosities
+into a general-purpose technology and launched the era this entire
+series describes.</p>
+<hr />
+<h2 id="the-arc-in-one-sentence">The arc in one sentence</h2>
+<p>Turing made computation universal, Shannon made information
+measurable, Rosenblatt made a machine that learns, Minsky &amp; Papert
+exposed its limits, backpropagation broke through them, distributed
+systems and web-scale data made the scaling physically possible, AlexNet
+proved deep learning works, the Transformer gave it the right shape, and
+GPT-3 showed that scale alone unlocks general capability — which is
+where <a href="01-ai-system-lifecycle.md">Chapter 1</a> begins.</p>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>. PDFs are the property of
+their respective authors/publishers; they are kept locally for study and
+are not redistributed in this repository — use the per-entry source
+links.</em></p>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+  <span class="to-dark">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+    <span class="label">Dark</span>
+  </span>
+  <span class="to-light">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
+    <span class="label">Light</span>
+  </span>
+</button>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    function current() {
+      var a = document.documentElement.getAttribute('data-theme');
+      if (a) return a;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('foam-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

@@ -9,3 +9,6 @@
 
 # Local tooling config
 .claude/
+
+# Downloaded papers — copyrighted, kept local only (appendix links to sources)
+papers/
