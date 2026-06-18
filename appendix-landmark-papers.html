@@ -130,7 +130,7 @@ transition: border-color .2s ease, transform .1s ease, background .25s ease, col
 <h1 id="appendix--landmark-papers">Appendix — Landmark Papers</h1>
 <blockquote>
 <p><em>Foundations of Modern AI</em> — Appendix Builds on: the whole
-series (<a href="01-ai-system-lifecycle.md">Chapter 1</a> … <a href="07-evaluation-and-safety.md">Chapter 7</a>) Scope: ten
+series (<a href="01-ai-system-lifecycle.html">Chapter 1</a> … <a href="07-evaluation-and-safety.html">Chapter 7</a>) Scope: ten
 foundational works the modern story rests on — each with a summary and
 why it mattered. The PDFs live in <a href="papers/"><code>papers/</code></a>; each entry also links to its
 original online <strong>source</strong>.</p>
@@ -183,10 +183,10 @@ measure of uncertainty in a source, and proved the limits of compression
 using n-gram approximations to <em>predict the next letter/word</em> —
 strikingly prefiguring language models.</p>
 <p><strong>Why it matters.</strong> Entropy is the direct ancestor of
-the <strong>cross-entropy loss</strong> that trains every model (<a href="04-pretraining-mechanics.md">Chapter 4</a>): &quot;how surprised was
+the <strong>cross-entropy loss</strong> that trains every model (<a href="04-pretraining-mechanics.html">Chapter 4</a>): &quot;how surprised was
 the model by the true next token&quot; <em>is</em> Shannon&#39;s surprise.
-Tokenization-as-compression (<a href="02-data-and-tokenization.md">Chapter 2</a>) and the very framing
-of language modeling as next-token prediction (<a href="03-the-transformer.md">Chapter 3</a>) are Shannon&#39;s legacy.
+Tokenization-as-compression (<a href="02-data-and-tokenization.html">Chapter 2</a>) and the very framing
+of language modeling as next-token prediction (<a href="03-the-transformer.html">Chapter 3</a>) are Shannon&#39;s legacy.
 Prediction and compression are two sides of one coin — his coin.</p>
 <hr />
 <h2 id="3-the-perceptron-a-probabilistic-model-for-information-storage-and-organization-in-the-brain">3.
@@ -202,8 +202,8 @@ until the outputs are correct. Crucially, the machine <em>learns from
 data</em> rather than being hand-programmed.</p>
 <p><strong>Why it matters.</strong> This is the ancestor of every
 artificial neural network. The single weighted-sum-and-activation unit
-is still the atom inside the Transformer (<a href="03-the-transformer.md">Chapter 3</a>), and &quot;adjust weights from
-examples&quot; is the seed of all training (<a href="04-pretraining-mechanics.md">Chapter 4</a>). Modern models are, in
+is still the atom inside the Transformer (<a href="03-the-transformer.html">Chapter 3</a>), and &quot;adjust weights from
+examples&quot; is the seed of all training (<a href="04-pretraining-mechanics.html">Chapter 4</a>). Modern models are, in
 a sense, perceptrons stacked billions deep.</p>
 <hr />
 <h2 id="4-perceptrons">4. Perceptrons</h2>
@@ -241,8 +241,8 @@ replication</em>).</p>
 <p><strong>Why it matters.</strong> This is foundational to distributed
 computing — the substrate that makes large-scale AI <em>physically
 possible</em>. Pretraining a frontier model spreads one computation
-across tens of thousands of coordinated machines (<a href="04-pretraining-mechanics.md">Chapter 4</a>), and serving it at
-scale (<a href="06-inference-and-applications.md">Chapter 6</a>) is a
+across tens of thousands of coordinated machines (<a href="04-pretraining-mechanics.html">Chapter 4</a>), and serving it at
+scale (<a href="06-inference-and-applications.html">Chapter 6</a>) is a
 distributed-systems problem. The algorithms are different from ML, but
 without reliable distributed coordination there is no training run and
 no deployment.</p>
@@ -262,7 +262,7 @@ useful internal <strong>representations</strong> of the data on their
 own.</p>
 <p><strong>Why it matters.</strong> This is the answer to the challenge
 Minsky &amp; Papert posed — the algorithm that made deep learning
-trainable. It is <em>exactly</em> the mechanism behind <a href="04-pretraining-mechanics.md">Chapter 4</a>: backpropagation
+trainable. It is <em>exactly</em> the mechanism behind <a href="04-pretraining-mechanics.html">Chapter 4</a>: backpropagation
 computes the gradients, gradient descent takes the step. Every model in
 this series learns by the method this paper made practical.</p>
 <hr />
@@ -279,7 +279,7 @@ entire web at a scale no one had managed before.</p>
 <p><strong>Why it matters.</strong> Two legacies feed straight into
 modern AI. First, the discipline of <strong>harvesting and organizing
 web-scale text</strong> is the direct ancestor of the data pipelines in
-<a href="02-data-and-tokenization.md">Chapter 2</a> (the very web crawls
+<a href="02-data-and-tokenization.html">Chapter 2</a> (the very web crawls
 that became training corpora). Second, PageRank&#39;s idea of <em>importance
 from structure</em> echoes in how models weigh relevance — and Google&#39;s
 later research lab produced the Transformer itself (next entries).</p>
@@ -302,7 +302,7 @@ the deep-learning era. It proved that <strong>depth + big data + GPU
 compute</strong> decisively beats hand-crafted features, and it set off
 the wave of investment and research that everything since rides on. The
 recipe it validated — scale the network, scale the data, scale the
-hardware — is precisely the scaling thesis formalized in <a href="04-pretraining-mechanics.md">Chapter 4</a>.</p>
+hardware — is precisely the scaling thesis formalized in <a href="04-pretraining-mechanics.html">Chapter 4</a>.</p>
 <hr />
 <h2 id="9-attention-is-all-you-need">9. Attention Is All You Need</h2>
 <p><strong>Ashish Vaswani et al. (Google), 2017</strong> · <a href="papers/09-attention-2017.pdf">📄 PDF</a> · <a href="https://arxiv.org/abs/1706.03762">source ↗</a></p>
@@ -314,9 +314,9 @@ every other — with <strong>multi-head attention</strong> and
 Removing the sequential bottleneck of earlier models made training
 massively <strong>parallelizable</strong> and long-range dependencies
 easy to capture.</p>
-<p><strong>Why it matters.</strong> This is the architecture of <a href="03-the-transformer.md">Chapter 3</a> and the direct foundation of
+<p><strong>Why it matters.</strong> This is the architecture of <a href="03-the-transformer.html">Chapter 3</a> and the direct foundation of
 essentially every modern LLM (the &quot;T&quot; in GPT). Its parallelism is
-<em>what made models scalable</em> to the sizes <a href="04-pretraining-mechanics.md">Chapter 4</a> describes. If one paper
+<em>what made models scalable</em> to the sizes <a href="04-pretraining-mechanics.html">Chapter 4</a> describes. If one paper
 is the hinge between &quot;old&quot; and &quot;modern&quot; AI, it&#39;s this one.</p>
 <hr />
 <h2 id="10-language-models-are-few-shot-learners-gpt-3">10. Language
@@ -329,8 +329,8 @@ prompt</em> — <strong>in-context (few-shot) learning</strong> — with
 <strong>no gradient updates or fine-tuning</strong>. Capability emerged
 from scale plus a plain next-token objective.</p>
 <p><strong>Why it matters.</strong> GPT-3 demonstrated the payoff of the
-<strong>scaling laws</strong> (<a href="04-pretraining-mechanics.md">Chapter 4</a>) and put
-<strong>in-context learning / prompting</strong> (<a href="06-inference-and-applications.md">Chapter 6</a>) at the center of
+<strong>scaling laws</strong> (<a href="04-pretraining-mechanics.html">Chapter 4</a>) and put
+<strong>in-context learning / prompting</strong> (<a href="06-inference-and-applications.html">Chapter 6</a>) at the center of
 how we use models. It turned language models from research curiosities
 into a general-purpose technology and launched the era this entire
 series describes.</p>
@@ -342,7 +342,7 @@ exposed its limits, backpropagation broke through them, distributed
 systems and web-scale data made the scaling physically possible, AlexNet
 proved deep learning works, the Transformer gave it the right shape, and
 GPT-3 showed that scale alone unlocks general capability — which is
-where <a href="01-ai-system-lifecycle.md">Chapter 1</a> begins.</p>
+where <a href="01-ai-system-lifecycle.html">Chapter 1</a> begins.</p>
 <hr />
 <p><em>Generated as part of the Foundations of Modern AI study series.
 Source of truth: this <code>.md</code> file; the <code>.html</code> is

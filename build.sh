@@ -24,6 +24,10 @@ build_one() {
     --include-after-body=partials/theme-toggle.html \
     --metadata title="${md%.md}" \
     --output "$html"
+  # Rewrite relative cross-chapter links from .md → .html (the .md source keeps
+  # .md links so they work when browsed on GitHub; the rendered site needs .html).
+  # Leaves absolute http(s) links untouched.
+  perl -i -pe 's/href="(?!https?:\/\/)([^"]+)\.md"/href="$1.html"/g' "$html"
   echo "  ✓ $md → $html"
 }
 
