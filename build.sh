@@ -20,6 +20,7 @@ build_one() {
     --embed-resources \
     --css=style.css \
     --include-in-header=partials/theme-head.html \
+    --include-before-body=partials/home-link.html \
     --include-after-body=partials/theme-toggle.html \
     --metadata title="${md%.md}" \
     --output "$html"

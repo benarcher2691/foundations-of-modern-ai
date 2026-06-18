@@ -78,6 +78,16 @@ ul, ol { padding-left: 1.4em; }
 li { margin: .35em 0; }
 hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
 
+.home-link {
+position: fixed; top: 16px; left: 16px; z-index: 100; text-decoration: none;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.home-link:hover { border-color: var(--accent); color: var(--accent); }
+.home-link:active { transform: scale(.95); }
+.home-link .icon { width: 15px; height: 15px; }
 .theme-toggle {
 position: fixed; top: 16px; right: 16px; z-index: 100;
 cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
@@ -94,7 +104,10 @@ transition: border-color .2s ease, transform .1s ease, background .25s ease, col
 :root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
 @media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
 @media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
-@media (max-width: 640px) { .theme-toggle .label { display: none; } .theme-toggle { padding: 7px; } }
+@media (max-width: 640px) {
+.theme-toggle .label, .home-link .label { display: none; }
+.theme-toggle, .home-link { padding: 7px; }
+}
 </style>
   <script>
     /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
@@ -107,6 +120,10 @@ transition: border-color .2s ease, transform .1s ease, background .25s ease, col
   </script>
 </head>
 <body>
+<a class="home-link" href="index.html" title="Back to contents" aria-label="Back to contents">
+  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+  <span class="label">Contents</span>
+</a>
 <header id="title-block-header">
 <h1 class="title">01-ai-system-lifecycle</h1>
 </header>
