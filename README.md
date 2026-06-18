@@ -4,6 +4,8 @@ A plain-language study series on how modern AI systems — especially Large Lang
 
 Each chapter exists as a Markdown source of truth (`.md`) and a self-contained, styled HTML rendering (`.html`) built from it.
 
+**Start here:** open [`index.html`](index.html) — a landing page linking every chapter, with a light/dark mode toggle.
+
 ## Chapters
 
 | # | Chapter | Source | Read |
@@ -12,8 +14,9 @@ Each chapter exists as a Markdown source of truth (`.md`) and a self-contained, 
 | 2 | Data & Tokenization — from the messy internet to clean integers | [`.md`](02-data-and-tokenization.md) | [`.html`](02-data-and-tokenization.html) |
 | 3 | The Transformer — how a model reads tokens and predicts the next one | [`.md`](03-the-transformer.md) | [`.html`](03-the-transformer.html) |
 | 4 | Pretraining Mechanics — loss, gradient descent, and scaling laws | [`.md`](04-pretraining-mechanics.md) | [`.html`](04-pretraining-mechanics.html) |
+| 5 | Alignment — turning a raw predictor into a helpful, honest, harmless assistant | [`.md`](05-alignment.md) | [`.html`](05-alignment.html) |
 
-*Planned:* Chapter 5 — Alignment · Chapter 6 — Inference & Applications · Chapter 7 — Evaluation & Safety.
+*Planned:* Chapter 6 — Inference & Applications · Chapter 7 — Evaluation & Safety.
 
 ## Building the HTML
 
@@ -29,8 +32,9 @@ Each `.html` is standalone (CSS embedded, no external dependencies) and opens co
 ## Repository layout
 
 ```
+index.html   landing page (links + light/dark toggle); hand-authored, not generated
 *.md         chapter sources (the source of truth)
-*.html       generated, self-contained renderings
+*.html       generated, self-contained chapter renderings
 style.css    shared stylesheet (light/dark aware)
 build.sh     pandoc build script
 ```
