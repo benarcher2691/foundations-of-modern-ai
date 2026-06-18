@@ -138,6 +138,7 @@ The natural pairing is with the **agents** of Chapter 6. An agent's loop is *thi
 
 ## What's next
 
+- **Chapter 9 — [The Harness](09-the-harness.md):** how an agent is actually wired together — the loop, how a model "uses" tools, the system prompt, and cache management.
 - **Appendix — [Landmark Papers](appendix-landmark-papers.md):** the foundational works the whole series rests on.
 - *Planned — Multimodality:* how the same Transformer ideas extend to images, audio, and video (parked for now; this series leans text and code).
 

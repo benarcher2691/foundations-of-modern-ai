@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>09-the-harness</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+:root {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme]) {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+}
+:root[data-theme="light"] {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+:root[data-theme="dark"] {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+transition: background .25s ease, color .25s ease;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+blockquote strong { color: var(--fg); }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+
+.home-link {
+position: fixed; top: 16px; left: 16px; z-index: 100; text-decoration: none;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.home-link:hover { border-color: var(--accent); color: var(--accent); }
+.home-link:active { transform: scale(.95); }
+.home-link .icon { width: 15px; height: 15px; }
+.theme-toggle {
+position: fixed; top: 16px; right: 16px; z-index: 100;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:active { transform: scale(.95); }
+.theme-toggle .icon { width: 15px; height: 15px; }
+
+.theme-toggle .to-dark, .theme-toggle .to-light { display: none; align-items: center; gap: 6px; }
+:root[data-theme="light"] .theme-toggle .to-dark { display: inline-flex; }
+:root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
+@media (max-width: 640px) {
+.theme-toggle .label, .home-link .label { display: none; }
+.theme-toggle, .home-link { padding: 7px; }
+}
+</style>
+  <script>
+    /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+    (function () {
+      try {
+        var t = localStorage.getItem('foam-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+<a class="home-link" href="index.html" title="Back to contents" aria-label="Back to contents">
+  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+  <span class="label">Contents</span>
+</a>
+<header id="title-block-header">
+<h1 class="title">09-the-harness</h1>
+</header>
+<h1 id="the-harness--how-an-agent-is-actually-wired-together">The
+Harness — How an Agent Is Actually Wired Together</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 9 (extension) Builds on:
+<a href="06-inference-and-applications.md">Chapter 6 — Inference &amp;
+Applications</a> (tools &amp; agents) and <a href="08-reasoning-models.md">Chapter 8 — Reasoning Models</a> Scope:
+what a <em>harness</em> is, why an agent needs one, and how to build a
+simple one yourself — the agentic loop, how a language model &quot;uses&quot;
+tools, the system prompt, and why cache management matters. No prior
+math assumed. Inspired by Mario Zechner&#39;s <a href="https://mariozechner.at/posts/2025-11-30-pi-coding-agent/">&quot;Building
+pi, a minimal coding agent&quot;</a> — a great companion read.</p>
+</blockquote>
+<hr />
+<h2 id="0-what-a-harness-is-and-why-you-need-one">0. What a harness is,
+and why you need one</h2>
+<p>By Chapter 6 we had the pieces of an agent — a model, some tools, a
+loop. This chapter zooms all the way in on the <strong>program that
+holds those pieces together</strong>: the <em>harness</em>.</p>
+<p>Start from the constraint we keep returning to (Chapter 6):
+<strong>the model is a stateless function.</strong> Tokens in → tokens
+out. It has no memory, can&#39;t run code, can&#39;t read a file, can&#39;t loop. On
+its own it can only <em>say</em> things.</p>
+<p>A <strong>harness</strong> is the ordinary program wrapped around
+that function to turn &quot;says things&quot; into &quot;does things.&quot; It:</p>
+<ul>
+<li>holds the <strong>system prompt</strong> (who the assistant is, what
+tools exist),</li>
+<li>runs the <strong>loop</strong> (call model → act → feed results back
+→ repeat),</li>
+<li><strong>executes the tools</strong> the model asks for,</li>
+<li>manages the <strong>context</strong> (the growing transcript) and
+its <strong>cost</strong> (caching).</li>
+</ul>
+<p>Tools like Claude Code, Cursor, and Zechner&#39;s minimal &quot;pi&quot; are all
+harnesses. The model is the engine; the harness is the rest of the car.
+And the encouraging news: <strong>a basic harness is small</strong> — a
+loop, a few tool functions, and a short prompt. By the end of this
+chapter you could write one.</p>
+<blockquote>
+<p>A theme worth borrowing from pi: a good harness is <em>legible</em>.
+Heavier agents &quot;inject stuff behind your back that isn&#39;t surfaced in the
+UI.&quot; The whole value of understanding the harness is that nothing about
+an agent has to be magic — it&#39;s a loop you can read.</p>
+</blockquote>
+<hr />
+<h2 id="1-the-mental-unlock-how-a-model-uses-a-tool">1. The mental
+unlock: how a model &quot;uses&quot; a tool</h2>
+<p>This is the part that confuses almost everyone, so let&#39;s kill the
+confusion directly.</p>
+<blockquote>
+<p><strong>A language model never runs a tool. It only ever emits
+text.</strong></p>
+</blockquote>
+<p>It cannot open a file or execute a command — it&#39;s a next-token
+predictor (Chapter 3). So how does an AI &quot;search the web&quot; or &quot;edit your
+code&quot;? Through a <strong>protocol</strong>, in four beats:</p>
+<pre><code>  1. DECLARE   The harness tells the model (up front): &quot;You have a tool called
+               `read`. It takes {path}. Here&#39;s what it does.&quot;
+  2. REQUEST   When the model wants the file, it doesn&#39;t read it — it emits a
+               structured message: call `read` with {path: &quot;main.py&quot;} … then STOPS.
+  3. EXECUTE   The HARNESS (plain code) sees that request, runs the real
+               read_file(&quot;main.py&quot;), and gets the contents.
+  4. RETURN    The harness pastes the contents back into the conversation as a
+               new message, and asks the model to continue.</code></pre>
+<p>The model &quot;used a tool&quot; the way you &quot;use a calculator&quot; by <em>writing
+down</em> <code>47 × 92 =</code> and handing the paper to someone else
+to compute. The model produces a <strong>request</strong>; your code
+does the work; the <strong>answer comes back as more
+conversation.</strong> That&#39;s the entire mechanism.</p>
+<p>A concrete exchange (simplified):</p>
+<pre><code>  user      → &quot;How many lines are in main.py?&quot;
+
+  assistant → [tool call] read(path=&quot;main.py&quot;)          ← model emits this and pauses
+                                                            (it did NOT read anything)
+
+  harness   → runs read_file(&quot;main.py&quot;) → &quot;import sys\n...&quot;
+              appends a tool-result message with that text
+
+  assistant → &quot;main.py has 42 lines.&quot;                   ← model continues, now that
+                                                            the result is in its context</code></pre>
+<p>Two things make this work, both supplied by the harness:</p>
+<ul>
+<li>The model was <strong>told the tool exists</strong> (step 1) — so
+emitting a call is a learned, in-distribution behavior (alignment +
+post-training taught it the format, Chapter 5).</li>
+<li>The model&#39;s request is <strong>structured</strong>, not freeform
+prose — so the harness can reliably parse it. That structure is the tool
+<em>definition</em>, next.</li>
+</ul>
+<hr />
+<h2 id="2-tool-definitions-name-description-schema">2. Tool definitions:
+name, description, schema</h2>
+<p>A tool, from the model&#39;s point of view, is just three things the
+harness declares:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>name</strong></td>
+<td>What to call it — e.g. <code>read</code>, <code>bash</code>.</td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>When and why</em> to use it, in plain language. The model picks
+tools based on this — write it well.</td>
+</tr>
+<tr>
+<td><strong>input schema</strong></td>
+<td>The arguments and their types, as <strong>JSON Schema</strong>, so
+the harness can validate the model&#39;s request.</td>
+</tr>
+</tbody>
+</table>
+<p>A minimal definition (the shape is near-identical across
+providers):</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;read&quot;</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;Read a file from disk. Use when you need to see file contents before editing.&quot;</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;input_schema&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;object&quot;</span><span class="fu">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;properties&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;path&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;string&quot;</span><span class="fu">,</span> <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;Path to the file&quot;</span> <span class="fu">}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;required&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;path&quot;</span><span class="ot">]</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>A capable coding agent needs surprisingly few tools. Pi ships
+<strong>four</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>Read a file (with offset/limit for big ones)</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>Create or overwrite a file</td>
+</tr>
+<tr>
+<td><code>edit</code></td>
+<td>Replace an exact string in a file (surgical edits)</td>
+</tr>
+<tr>
+<td><code>bash</code></td>
+<td>Run a shell command</td>
+</tr>
+</tbody>
+</table>
+<p>With just those, a model can explore a repo, run tests, and make
+changes — because <code>bash</code> alone is enormously general. (Why
+have dedicated <code>read</code>/<code>edit</code> at all, when
+<code>bash</code> could <code>cat</code> and <code>sed</code>? Because
+dedicated tools give the <em>harness</em> a typed hook it can validate,
+gate behind approval, or render nicely — a point we return to in
+§8.)</p>
+<hr />
+<h2 id="3-the-agentic-loop">3. The agentic loop</h2>
+<p>Now the heart of the harness. Everything above plugs into one
+loop:</p>
+<pre><code>  messages = [ first user message ]
+
+  loop forever:
+      reply = call_model(system_prompt, tools, messages)   # the LLM call
+      append reply to messages                             # keep the transcript
+
+      if reply has no tool calls:
+          return reply                                     # model is done → answer the user
+
+      for each tool_call in reply:
+          result = run_tool(tool_call.name, tool_call.args) # the harness does the work
+          append a tool-result message (linked to tool_call) to messages
+
+      # loop again — model now sees the results and decides the next step</code></pre>
+<p>That&#39;s it. The whole &quot;agent&quot; is: <strong>call the model; if it asked
+for tools, run them and feed the results back; otherwise you&#39;re
+done.</strong> Each turn the model sees the entire growing transcript
+and decides the next action — read another file, run the tests, or stop
+and reply.</p>
+<pre><code>        ┌───────────────────────────────────────────────┐
+        │                                                │
+        ▼                                                │
+   call model ──► tool calls? ──no──► reply to user (done)
+        ▲              │ yes
+        │              ▼
+        │        run each tool
+        │              │
+        └──── append results ◄┘</code></pre>
+<p>The loop&#39;s exit condition is simply <strong>&quot;the model replied with
+text and no tool calls&quot;</strong> — it decided it&#39;s finished.
+(Anthropic&#39;s API signals this with <code>stop_reason: &quot;end_turn&quot;</code>
+vs. <code>&quot;tool_use&quot;</code>; other providers have an equivalent
+flag.)</p>
+<p>Pair this with Chapter 8 and you see why reasoning models make better
+agents: a stronger <em>&quot;decide the next step&quot;</em> makes a smarter
+loop.</p>
+<hr />
+<h2 id="4-keeping-it-llm-agnostic">4. Keeping it LLM-agnostic</h2>
+<p>Here&#39;s the reassuring part: <strong>the loop above is identical for
+every model provider.</strong> The only thing that differs is the
+<em>wire format</em> of one message — how a tool call and its result are
+represented. Two concrete dialects:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Anthropic (Claude)</th>
+<th>OpenAI (GPT)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model requests a tool</td>
+<td>a <code>tool_use</code> content block:
+<code>{id, name, input}</code></td>
+<td>a <code>tool_calls</code> entry:
+<code>{id, function:{name, arguments}}</code></td>
+</tr>
+<tr>
+<td>Harness returns a result</td>
+<td>a <code>tool_result</code> block keyed by
+<code>tool_use_id</code></td>
+<td>a message with <code>role: &quot;tool&quot;</code> keyed by
+<code>tool_call_id</code></td>
+</tr>
+<tr>
+<td>&quot;I&#39;m done&quot; signal</td>
+<td><code>stop_reason: &quot;end_turn&quot;</code></td>
+<td><code>finish_reason: &quot;stop&quot;</code></td>
+</tr>
+</tbody>
+</table>
+<p>Same idea — <em>request, then result-linked-by-id</em> — different
+field names. So you isolate the difference behind <strong>one
+function</strong>:</p>
+<pre><code>  complete(system, tools, messages) -&gt; { text, tool_calls, done }
+      # internally: translate to this provider&#39;s format, call its API,
+      # translate the response back into a normalized shape</code></pre>
+<p>Write a <code>complete()</code> for Anthropic, another for OpenAI (or
+a local model via Ollama, etc.), and <strong>your loop, tools, and
+prompt never change.</strong> This is exactly how real harnesses stay
+multi-provider — pi supports Anthropic, OpenAI, Google, and any
+OpenAI-compatible endpoint behind one such seam. <em>Agnostic by
+abstraction:</em> the loop is universal; only the adapter is
+provider-specific.</p>
+<hr />
+<h2 id="5-the-system-prompt">5. The system prompt</h2>
+<p>The <strong>system prompt</strong> is the standing instruction block
+placed at the very front of the context every turn (Chapter 6). In a
+harness it carries:</p>
+<ul>
+<li><strong>identity &amp; intent</strong> — &quot;You are an expert coding
+assistant operating in a terminal&quot;;</li>
+<li><strong>tool guidance</strong> — when to prefer <code>edit</code>
+over <code>write</code>, to read before editing, to run tests after
+changes;</li>
+<li><strong>conventions</strong> — output format, how to ask for
+clarification, safety rules.</li>
+</ul>
+<p>The instinct is to write a giant prompt. Resist it. Pi&#39;s entire
+system prompt is <strong>under 1,000 tokens</strong> — it names the
+assistant, lists the four tools with a line of guidance each, and stops,
+where some other harnesses run to many thousands of tokens. Two reasons
+less is more:</p>
+<ol type="1">
+<li><strong>Every token is sent every turn</strong> (the model is
+stateless), so a bloated prompt is a tax on the whole session.</li>
+<li>Modern models already <em>know how to code and use tools</em>
+(Chapters 4–5). The prompt&#39;s job is to set role and conventions, not to
+re-teach the model its job. Over-instruction also backfires — aggressive
+&quot;you MUST&quot; language makes capable models overtrigger.</li>
+</ol>
+<blockquote>
+<p>Rule of thumb: the system prompt should say what&#39;s <em>specific to
+your harness</em> (its tools, its conventions, its guardrails) — not
+everything you wish were true about good engineering.</p>
+</blockquote>
+<hr />
+<h2 id="6-cache-management--the-part-beginners-skip-and-regret">6. Cache
+management — the part beginners skip and regret</h2>
+<p>Here is the most important <em>efficiency</em> idea in the whole
+chapter, and it falls straight out of statelessness.</p>
+<p>The model has no memory, so <strong>every turn you resend the entire
+transcript</strong> — system prompt + tool definitions + the full
+back-and-forth so far. As an agent works, that transcript grows: turn 1
+might be 2,000 tokens; turn 20, after reading files and running
+commands, might be 50,000. And you re-send all of it <em>every
+step</em>.</p>
+<p>Naively, the model re-processes that whole growing prefix each turn.
+Over a session that&#39;s roughly <strong>quadratic</strong> cost — the
+early context gets re-read again and again. For a long agent run, this
+is the difference between cheap and unaffordable.</p>
+<p><strong>Prompt caching</strong> fixes it. The provider can cache the
+result of processing a prefix of the input; on the next request, the
+unchanged prefix is served from cache instead of recomputed. The
+economics (Anthropic&#39;s numbers, others are similar):</p>
+<ul>
+<li>a <strong>cache read</strong> costs about <strong>0.1×</strong> the
+normal input price — a 90% discount on the repeated part;</li>
+<li>a <strong>cache write</strong> costs about <strong>1.25×</strong>
+(for the default 5-minute lifetime; ~2× for a 1-hour lifetime) — a small
+premium paid once.</li>
+</ul>
+<p>So a long agent session goes from re-paying full price for the whole
+history every turn to paying ~10% for everything it has already seen.
+That&#39;s the lever that makes agents economical.</p>
+<h3 id="the-one-rule-that-makes-caching-work">The one rule that makes
+caching work</h3>
+<blockquote>
+<p><strong>Caching is a prefix match. Any change to the cached prefix
+invalidates it from the change-point onward.</strong></p>
+</blockquote>
+<p>The provider caches <em>up to a point</em> in your input, keyed on
+the exact bytes. Change anything before that point and the cache is void
+from there. Two consequences drive how you structure a harness:</p>
+<ol type="1">
+<li><strong>Keep the front of the context frozen.</strong> The render
+order is <strong>tools → system prompt → conversation</strong>. Tool
+definitions and the system prompt should be byte-for-byte identical
+every turn — so <em>don&#39;t</em> interpolate a timestamp, a random ID, or
+&quot;current file: X&quot; into the system prompt. That single changing byte
+busts the cache for the entire session.</li>
+<li><strong>Only ever append.</strong> Add new turns to the <em>end</em>
+of the transcript; never edit or reorder earlier messages. An
+append-only conversation means the long stable prefix keeps hitting the
+cache, and only the new tail is processed fresh.</li>
+</ol>
+<p>Concretely, you mark a <strong>cache breakpoint</strong> at the end
+of the stable prefix (in the Anthropic API,
+<code>cache_control: {type: &quot;ephemeral&quot;}</code>; default 5-minute
+lifetime, or <code>&quot;1h&quot;</code>), and another at the end of the latest
+turn so the conversation prefix is reused too. Then verify it&#39;s working:
+the response reports how many tokens were served from cache
+(<code>cache_read_input_tokens</code>) — if that&#39;s stuck at zero across
+turns, something in your prefix is changing every request, and you have
+a silent cache-buster to hunt down.</p>
+<pre><code>   ┌──────────── frozen, cached prefix (cheap to re-send) ─────────────┐  ┌ new ┐
+   [ tool defs ] [ system prompt ] [ turn1 ][ result1 ][ turn2 ]...      [ turnN ]
+                                 ▲                          ▲
+                          breakpoint                  breakpoint
+                       (tools+system cached)     (conversation cached)</code></pre>
+<p>Get this right and a 50-turn coding session stays cheap. Get it wrong
+— a clock in the system prompt — and you pay full freight every single
+turn without realizing it.</p>
+<hr />
+<h2 id="7-a-complete-minimal-harness">7. A complete minimal harness</h2>
+<p>Putting every piece together, here is a whole agent in pseudocode —
+short enough to read in one sitting:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>SYSTEM <span class="op">=</span> <span class="st">&quot;You are a coding assistant in a terminal. Read before you edit. &quot;</span> <span class="op">\</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;Run tests after changes. Use the tools; keep replies short.&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>TOOLS <span class="op">=</span> [ read_def, write_def, edit_def, bash_def ]   <span class="co"># name + description + schema each</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_tool(name, args):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> name <span class="op">==</span> <span class="st">&quot;read&quot;</span>:  <span class="cf">return</span> <span class="bu">open</span>(args[<span class="st">&quot;path&quot;</span>]).read()</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> name <span class="op">==</span> <span class="st">&quot;write&quot;</span>: <span class="bu">open</span>(args[<span class="st">&quot;path&quot;</span>], <span class="st">&quot;w&quot;</span>).write(args[<span class="st">&quot;content&quot;</span>])<span class="op">;</span> <span class="cf">return</span> <span class="st">&quot;ok&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> name <span class="op">==</span> <span class="st">&quot;edit&quot;</span>:  <span class="cf">return</span> apply_edit(args[<span class="st">&quot;path&quot;</span>], args[<span class="st">&quot;old&quot;</span>], args[<span class="st">&quot;new&quot;</span>])</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> name <span class="op">==</span> <span class="st">&quot;bash&quot;</span>:  <span class="cf">return</span> shell(args[<span class="st">&quot;cmd&quot;</span>], timeout<span class="op">=</span>args.get(<span class="st">&quot;timeout&quot;</span>, <span class="dv">60</span>))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> agent(user_message):</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    messages <span class="op">=</span> [ user(user_message) ]</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        reply <span class="op">=</span> complete(SYSTEM, TOOLS, messages)   <span class="co"># provider adapter + caching live here</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        messages.append(reply)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> reply.done:                               <span class="co"># no tool calls → finished</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> reply.text</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> call <span class="kw">in</span> reply.tool_calls:</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            result <span class="op">=</span> run_tool(call.name, call.args)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            messages.append(tool_result(call.<span class="bu">id</span>, result))   <span class="co"># link by id, append only</span></span></code></pre></div>
+<p>Everything in this chapter is in those ~15 lines: the
+<strong>loop</strong> (§3), <strong>tool execution</strong> (§1–2), the
+<strong>system prompt</strong> (§5), the provider-agnostic
+<strong><code>complete()</code></strong> seam (§4), and the
+<strong>append-only</strong> discipline that keeps caching healthy (§6).
+A real harness adds polish, but this <em>is</em> an agent.</p>
+<hr />
+<h2 id="8-what-real-harnesses-add">8. What real harnesses add</h2>
+<p>The skeleton works; production harnesses layer on safety and
+ergonomics, each tying back to earlier ideas:</p>
+<ul>
+<li><strong>Permissions / approval.</strong> Before a destructive
+<code>bash</code> or <code>write</code>, pause and ask the user.
+Dedicated tools (vs. raw <code>bash</code>) exist partly so the harness
+can <em>gate</em> specific actions — this is the safety boundary from
+Chapter 7 made concrete, and why agent autonomy raises risk.</li>
+<li><strong>Streaming.</strong> Show tokens as they generate, and parse
+tool calls progressively, so the UI feels live.</li>
+<li><strong>Parallel &amp; safe tool use.</strong> Run independent
+read-only tools (search, list) concurrently; serialize anything that
+mutates state.</li>
+<li><strong>Context management.</strong> When the transcript nears the
+context window (Chapter 6), <strong>compact</strong> it — summarize old
+turns — or prune stale tool output, so long sessions don&#39;t
+overflow.</li>
+<li><strong>Sub-agents.</strong> Spawn a fresh harness with its own
+context for a sub-task. Powerful, but (per pi&#39;s caution) it&#39;s &quot;a black
+box within a black box&quot; — you lose visibility, so use it
+deliberately.</li>
+</ul>
+<p>None of these change the core: they wrap more judgment around the
+same <strong>call → act → feed back</strong> loop.</p>
+<hr />
+<h2 id="9-recap">9. Recap</h2>
+<ul>
+<li>A <strong>harness</strong> is the ordinary program that turns a
+stateless model into an agent: it holds the system prompt and tools,
+runs the loop, executes tool calls, and manages context and cost.</li>
+<li><strong>A model never runs a tool — it only emits text.</strong>
+&quot;Tool use&quot; is a protocol: the harness <em>declares</em> tools, the model
+<em>requests</em> one (structured text) and pauses, the harness
+<em>executes</em> the real code, and the result is <em>returned</em> as
+more conversation.</li>
+<li>A <strong>tool</strong> is a name + description + JSON-schema; a
+handful (read/write/edit/bash) goes a long way because <code>bash</code>
+is so general.</li>
+<li>The <strong>agentic loop</strong> is tiny: call model → if it asked
+for tools, run them and append results → else reply. It&#39;s
+<strong>LLM-agnostic</strong> — only a thin <code>complete()</code>
+adapter differs per provider (Anthropic
+<code>tool_use</code>/<code>tool_result</code> vs OpenAI
+<code>tool_calls</code>/<code>role:tool</code>).</li>
+<li>Keep the <strong>system prompt minimal</strong> — every token is
+re-sent each turn, and modern models already know how to work.</li>
+<li><strong>Cache management</strong> is the key to affordable agents:
+the transcript grows and is re-sent every turn, so cache the
+<strong>frozen prefix</strong> (tools → system → history), keep it
+byte-stable, and <strong>only append</strong>. Cache reads cost ~0.1×; a
+changing byte in the prefix silently busts everything.</li>
+</ul>
+<hr />
+<h2 id="whats-next">What&#39;s next</h2>
+<ul>
+<li><strong>Appendix — <a href="appendix-landmark-papers.md">Landmark
+Papers</a>:</strong> the foundational works behind everything in this
+series.</li>
+<li><em>Planned — Multimodality:</em> extending these ideas to images,
+audio, and video (still parked; the series leans text and code).</li>
+</ul>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+  <span class="to-dark">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+    <span class="label">Dark</span>
+  </span>
+  <span class="to-light">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
+    <span class="label">Light</span>
+  </span>
+</button>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    function current() {
+      var a = document.documentElement.getAttribute('data-theme');
+      if (a) return a;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('foam-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>
