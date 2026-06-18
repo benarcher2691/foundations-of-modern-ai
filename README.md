@@ -17,9 +17,12 @@ Each chapter exists as a Markdown source of truth (`.md`) and a self-contained, 
 | 5 | Alignment — turning a raw predictor into a helpful, honest, harmless assistant | [`.md`](05-alignment.md) | [`.html`](05-alignment.html) |
 | 6 | Inference & Applications — generation, prompting, RAG, tools, and agents | [`.md`](06-inference-and-applications.md) | [`.html`](06-inference-and-applications.html) |
 | 7 | Evaluation & Safety — benchmarks, red-teaming, and what "good" means | [`.md`](07-evaluation-and-safety.md) | [`.html`](07-evaluation-and-safety.html) |
-| A | Appendix — Landmark Papers (Turing 1936 → GPT-3 2020), each with a summary & significance | [`.md`](08-appendix-landmark-papers.md) | [`.html`](08-appendix-landmark-papers.html) |
+| 8 | Reasoning Models — teaching a model to think before it answers | [`.md`](08-reasoning-models.md) | [`.html`](08-reasoning-models.html) |
+| A | Appendix — Landmark Papers (Turing 1936 → GPT-3 2020), each with a summary & significance | [`.md`](appendix-landmark-papers.md) | [`.html`](appendix-landmark-papers.html) |
 
-The appendix's PDFs are downloaded locally into `papers/` (git-ignored, as they are copyrighted); each entry links to an online source.
+The appendix's PDFs are stored in [`papers/`](papers/); each entry also links to its original online source.
+
+*Planned:* a Multimodality chapter (vision / audio / video).
 
 ## Building the HTML
 

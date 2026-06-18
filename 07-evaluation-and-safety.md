@@ -143,9 +143,11 @@ A responsible evaluation picks the dimensions that matter for *its* use case, me
 
 ## What's next
 
-That completes the core lifecycle — from raw data all the way to a monitored, evaluated product, and back around the loop.
+That completes the **core lifecycle** — from raw data all the way to a monitored, evaluated product, and back around the loop. Two further pieces extend the story:
 
-**Appendix — Landmark Papers:** a short library of the foundational works this whole story rests on — from Turing's 1936 definition of computation to the 2017 Transformer and the 2020 demonstration that scale brings few-shot learning — each with a summary and why it mattered.
+**Chapter 8 — [Reasoning Models](08-reasoning-models.md):** a deeper look at the recent shift to models that *think* before they answer — generating long internal reasoning, trained by reinforcement on problems with checkable answers.
+
+**Appendix — [Landmark Papers](appendix-landmark-papers.md):** a short library of the foundational works this whole story rests on — from Turing's 1936 definition of computation to the 2017 Transformer and the 2020 demonstration that scale brings few-shot learning — each with a summary and why it mattered.
 
 ---
 

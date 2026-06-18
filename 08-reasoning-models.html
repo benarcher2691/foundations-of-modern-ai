@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>08-reasoning-models</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+:root {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme]) {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+}
+:root[data-theme="light"] {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+:root[data-theme="dark"] {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+transition: background .25s ease, color .25s ease;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+blockquote strong { color: var(--fg); }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+
+.theme-toggle {
+position: fixed; top: 16px; right: 16px; z-index: 100;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:active { transform: scale(.95); }
+.theme-toggle .icon { width: 15px; height: 15px; }
+
+.theme-toggle .to-dark, .theme-toggle .to-light { display: none; align-items: center; gap: 6px; }
+:root[data-theme="light"] .theme-toggle .to-dark { display: inline-flex; }
+:root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
+@media (max-width: 640px) { .theme-toggle .label { display: none; } .theme-toggle { padding: 7px; } }
+</style>
+  <script>
+    /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+    (function () {
+      try {
+        var t = localStorage.getItem('foam-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">08-reasoning-models</h1>
+</header>
+<h1 id="reasoning-models--teaching-a-model-to-think-before-it-answers">Reasoning
+Models — Teaching a Model to Think Before It Answers</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Chapter 8 (extension) Builds on:
+<a href="04-pretraining-mechanics.md">Chapter 4 — Pretraining</a>
+(scaling), <a href="05-alignment.md">Chapter 5 — Alignment</a>
+(reinforcement learning), and <a href="06-inference-and-applications.md">Chapter 6 — Inference</a>
+(chain-of-thought prompting) Scope: the 2024–2025 shift to models that
+generate a long internal reasoning process before answering — what they
+are, how they&#39;re trained, and the new &quot;think longer&quot; scaling axis. No
+prior math assumed.</p>
+</blockquote>
+<hr />
+<h2 id="0-where-this-fits">0. Where this fits</h2>
+<p>Chapters 1–7 covered the core lifecycle. This chapter is an
+<strong>extension</strong> about one of the most important recent
+developments: <strong>reasoning models</strong> (the &quot;o-series,&quot;
+&quot;extended thinking,&quot; &quot;R1,&quot; and similar).</p>
+<p>Start from a limitation. A standard model (Chapter 3) emits its
+answer <strong>immediately</strong> — the first answer token is produced
+right after your prompt, with no scratch space. For lookup or fluency
+that&#39;s fine. For a hard math problem or a subtle bug, it&#39;s like
+demanding a person blurt the answer with no chance to work it out.
+Reasoning models remove that constraint: they <strong>think first, then
+answer.</strong></p>
+<blockquote>
+<p>The cognitive analogy people reach for: fast, intuitive &quot;System 1&quot;
+(blurting) vs. slow, deliberate &quot;System 2&quot; (working it out). A reasoning
+model is a language model trained to <em>use</em> System 2 when the
+problem warrants it.</p>
+</blockquote>
+<hr />
+<h2 id="1-the-core-idea-a-chain-of-thought-trained-in">1. The core idea:
+a chain of thought, trained in</h2>
+<p>Chapter 6 introduced <strong>chain-of-thought</strong> prompting:
+telling a model to &quot;think step by step&quot; makes it generate intermediate
+reasoning, which improves hard problems because the model builds on its
+own partial work instead of leaping to a conclusion.</p>
+<p>Reasoning models take that from a <em>prompting trick</em> to a
+<em>trained-in habit</em> — and push it much further:</p>
+<pre><code>   Standard model:
+     prompt ─────────────────────────────► answer        (think? none)
+
+   Reasoning model:
+     prompt ─► [ long internal reasoning: try, check, backtrack, retry ] ─► answer
+               └──────────── hundreds to thousands of &quot;thinking&quot; tokens ──┘</code></pre>
+<p>The model produces an extended stream of <strong>reasoning
+tokens</strong> — exploring approaches, doing sub-calculations, catching
+its own mistakes — <em>before</em> committing to a final answer.
+Crucially this isn&#39;t hand-scripted; the model learned the
+<em>behaviour</em> of reasoning. Which raises the real question: how do
+you train that?</p>
+<hr />
+<h2 id="2-how-theyre-trained-reinforcement-learning-on-checkable-answers">2.
+How they&#39;re trained: reinforcement learning on checkable answers</h2>
+<p>Recall two kinds of training so far: <strong>next-token
+imitation</strong> (Chapter 4) and <strong>RLHF</strong>, where the
+reward came from <em>human preference</em> (Chapter 5). Reasoning models
+add a third, with a different reward source:</p>
+<blockquote>
+<p><strong>Reinforcement learning from verifiable rewards
+(RLVR):</strong> train on problems whose answers can be
+<strong>automatically checked</strong> — math (is the final number
+right?), code (do the unit tests pass?), logic puzzles. The reward is
+simply <em>correct or not</em>.</p>
+</blockquote>
+<p>The loop:</p>
+<pre><code>   1. give the model a problem with a known-checkable answer
+   2. let it generate a long reasoning attempt + a final answer
+   3. CHECK the final answer automatically (no human needed)
+   4. reinforce the reasoning paths that led to correct answers; discourage the rest
+   5. repeat over millions of problems</code></pre>
+<p>The difference from RLHF matters. RLHF optimizes &quot;what humans
+<em>prefer</em>&quot; — subjective, and vulnerable to sycophancy (Chapter 5).
+RLVR optimizes &quot;what is <em>correct</em>&quot; — objective and hard to fake,
+because a wrong proof doesn&#39;t suddenly pass the checker. This grounding
+is <em>why</em> reasoning training produces such large gains on math and
+coding.</p>
+<h3 id="the-striking-part-reasoning-behaviours-emerge">The striking
+part: reasoning behaviours <em>emerge</em></h3>
+<p>Nobody tells the model <em>how</em> to reason. Yet, optimized only on
+&quot;get the right answer,&quot; models spontaneously develop recognizable
+strategies:</p>
+<ul>
+<li><strong>breaking problems into steps</strong>, and exploring more
+than one approach;</li>
+<li><strong>self-correction</strong> — noticing an error mid-stream
+(&quot;wait, that&#39;s wrong — let me redo it&quot;);</li>
+<li><strong>verification</strong> — checking their own answer before
+committing.</li>
+</ul>
+<p>These are emergent (echoing Chapter 4&#39;s emergence): they appear
+because they <em>help solve the problem</em>, not because they were
+programmed. A model rewarded purely for correctness discovers, on its
+own, that double-checking pays off.</p>
+<hr />
+<h2 id="3-a-new-scaling-axis-thinking-longer-at-inference">3. A new
+scaling axis: thinking longer at inference</h2>
+<p>Chapter 4&#39;s scaling laws were about <strong>training</strong>: more
+data, parameters, and compute <em>during training</em> → a better model.
+Reasoning models opened a second, complementary axis:</p>
+<blockquote>
+<p><strong>Test-time (inference-time) compute:</strong> for a
+<em>fixed</em> trained model, letting it generate <strong>more reasoning
+tokens</strong> at answer-time produces <strong>better answers</strong>
+on hard problems.</p>
+</blockquote>
+<pre><code>   accuracy
+     │                        ___────  more thinking →
+     │                ___────&#39;           higher accuracy
+     │           __──&#39;                   (on hard problems)
+     │       _──&#39;
+     └────────────────────────────────► thinking tokens spent per question
+        (train-time scaling sets the curve; test-time scaling moves along it)</code></pre>
+<p>This is a genuine shift in how capability is bought. You can now
+trade <strong>compute per query</strong> for <strong>quality per
+query</strong>, decided at request time — no retraining. In practice
+this surfaces as a <strong>thinking budget</strong> or
+<strong>effort</strong> setting: spend more tokens (and time, and money)
+on a hard question; spend almost none on an easy one.</p>
+<hr />
+<h2 id="4-what-it-looks-like-in-use">4. What it looks like in use</h2>
+<ul>
+<li><strong>Thinking, then answering.</strong> The model first emits its
+reasoning, then a clean final answer. The reasoning is sometimes hidden,
+sometimes shown verbatim, sometimes shown as a summary — a
+product/safety choice that varies by system.</li>
+<li><strong>Budgets / effort levels.</strong> You (or the app) can dial
+how much the model thinks. Higher effort → better on hard tasks, but
+slower and costlier (more tokens, Chapter 2).</li>
+<li><strong>It&#39;s still one model.</strong> A reasoning model is a normal
+Transformer (Chapter 3) doing next-token prediction (Chapter 4) — the
+<em>training</em> taught it to spend many of those tokens on reasoning
+before the answer. No new architecture is required.</li>
+</ul>
+<hr />
+<h2 id="5-when-reasoning-helps--and-when-it-doesnt">5. When reasoning
+helps — and when it doesn&#39;t</h2>
+<p>More thinking is not always better. The skill is matching effort to
+the task:</p>
+<table>
+<thead>
+<tr>
+<th>Reasoning models shine</th>
+<th>Reasoning is wasteful / counterproductive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multi-step math and science</td>
+<td>Simple factual lookup (&quot;capital of France&quot;)</td>
+</tr>
+<tr>
+<td>Complex coding, debugging, refactoring</td>
+<td>Short creative or conversational replies</td>
+</tr>
+<tr>
+<td>Logical puzzles, planning, proofs</td>
+<td>Latency-sensitive, high-volume simple calls</td>
+</tr>
+<tr>
+<td>Tasks where a wrong step compounds</td>
+<td>Tasks where the answer is immediate anyway</td>
+</tr>
+</tbody>
+</table>
+<p>For easy questions, a reasoning model can <strong>overthink</strong>
+— burning tokens and time, occasionally even talking itself <em>out</em>
+of a correct first instinct. The practical guidance mirrors Chapter 6&#39;s
+&quot;lightest layer that works&quot;: reach for reasoning (or a higher thinking
+budget) when a task is genuinely hard, not by default.</p>
+<hr />
+<h2 id="6-limits-and-caveats">6. Limits and caveats</h2>
+<p>Reasoning is a major advance, not a cure — and it raises its own
+issues, several tying straight back to Chapter 7:</p>
+<ul>
+<li><strong>Still fallible.</strong> A long, confident chain of
+reasoning can still reach a wrong answer. More steps mean more
+<em>chances</em> to be right, not a guarantee.</li>
+<li><strong>Faithfulness.</strong> The reasoning the model
+<em>shows</em> may not be the true cause of its answer — it can reach a
+conclusion one way and narrate a tidier story. This makes visible
+reasoning an unreliable audit trail, an active
+<strong>safety/evaluation</strong> concern (Chapter 7).</li>
+<li><strong>Cost and latency.</strong> Thinking tokens are real tokens:
+reasoning answers are slower and more expensive. Test-time scaling buys
+quality <em>with</em> compute.</li>
+<li><strong>Reward hacking, again.</strong> Even with verifiable
+rewards, models can find shortcuts that satisfy the <em>checker</em>
+without genuinely solving the problem (Goodhart&#39;s Law, Chapter 7) — so
+the checkers and training tasks must be designed carefully.</li>
+</ul>
+<hr />
+<h2 id="7-reasoning--tools--stronger-agents">7. Reasoning + tools =
+stronger agents</h2>
+<p>The natural pairing is with the <strong>agents</strong> of Chapter 6.
+An agent&#39;s loop is <em>think → act → observe</em>; a reasoning model
+makes the <strong>think</strong> step far more capable. Interleave the
+two and you get a system that can reason about <em>what</em> to do, call
+a tool, reason about the result, and continue — the basis of the
+strongest current agentic systems (deep research, autonomous coding).
+Reasoning supplies the deliberation; tools supply the facts and
+actions.</p>
+<hr />
+<h2 id="8-recap">8. Recap</h2>
+<ul>
+<li><strong>Reasoning models</strong> are trained to generate a long
+internal <strong>chain of thought</strong> before answering — turning
+Chapter 6&#39;s prompting trick into a trained-in habit.</li>
+<li>They&#39;re trained largely by <strong>reinforcement learning on
+verifiable rewards (RLVR)</strong> — problems with automatically
+checkable answers (math, code) — which is more objective than RLHF&#39;s
+human preference and grounds the gains.</li>
+<li>Useful reasoning <strong>behaviours emerge</strong> from optimizing
+only for correctness: decomposition, self-correction, verification.</li>
+<li>They add a new <strong>test-time compute</strong> scaling axis:
+think longer → better answers, tunable per query via a thinking budget —
+complementing Chapter 4&#39;s train-time scaling.</li>
+<li>They <strong>shine on hard multi-step problems</strong> and can
+<strong>overthink</strong> easy ones; match effort to difficulty.</li>
+<li>Caveats: still fallible, possibly <strong>unfaithful</strong>
+reasoning, higher cost/latency, and Goodhart-style reward hacking
+(Chapter 7). Paired with <strong>tools</strong>, reasoning powers
+today&#39;s strongest <strong>agents</strong>.</li>
+</ul>
+<hr />
+<h2 id="whats-next">What&#39;s next</h2>
+<ul>
+<li><strong>Appendix — <a href="appendix-landmark-papers.md">Landmark
+Papers</a>:</strong> the foundational works the whole series rests
+on.</li>
+<li><em>Planned — Multimodality:</em> how the same Transformer ideas
+extend to images, audio, and video (parked for now; this series leans
+text and code).</li>
+</ul>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>.</em></p>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+  <span class="to-dark">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+    <span class="label">Dark</span>
+  </span>
+  <span class="to-light">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
+    <span class="label">Light</span>
+  </span>
+</button>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    function current() {
+      var a = document.documentElement.getAttribute('data-theme');
+      if (a) return a;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('foam-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>
