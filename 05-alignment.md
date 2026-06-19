@@ -31,7 +31,7 @@ So post-training adds two new ingredients on top of the base model: **demonstrat
 
 ---
 
-## 2. Stage one: Supervised Fine-Tuning (SFT)
+## 2. Supervised fine-tuning (SFT)
 
 **SFT teaches the format and the habit of answering.** It uses the *exact same machinery* as pretraining — predict the next token, compute loss, gradient descent (Chapter 4) — but on a small, curated dataset of **ideal conversations**:
 
@@ -52,7 +52,7 @@ After SFT you already have something that *feels* like a chatbot. But SFT has a 
 
 ---
 
-## 3. Stage two: learning from feedback (RLHF)
+## 3. Learning from feedback (RLHF)
 
 This is the step most associated with the ChatGPT era. The insight: **it's far easier for a human to compare two answers than to write the perfect one.** So instead of demanding more demonstrations, we collect *judgments*. The classic pipeline, **RLHF** (Reinforcement Learning from Human Feedback), has three parts.
 

@@ -181,8 +181,8 @@ need a new kind of training signal that captures
 <strong>preferences</strong> (tell it which behaviour is better). That&#39;s
 the whole chapter.</p>
 <hr />
-<h2 id="2-stage-one-supervised-fine-tuning-sft">2. Stage one: Supervised
-Fine-Tuning (SFT)</h2>
+<h2 id="2-supervised-fine-tuning-sft">2. Supervised fine-tuning
+(SFT)</h2>
 <p><strong>SFT teaches the format and the habit of answering.</strong>
 It uses the <em>exact same machinery</em> as pretraining — predict the
 next token, compute loss, gradient descent (Chapter 4) — but on a small,
@@ -206,8 +206,8 @@ situation is impossible. Worse, it can&#39;t easily learn from
 <em>mistakes</em> — it&#39;s only ever shown right answers, never told &quot;this
 one is worse than that one.&quot; For that, we need preferences.</p>
 <hr />
-<h2 id="3-stage-two-learning-from-feedback-rlhf">3. Stage two: learning
-from feedback (RLHF)</h2>
+<h2 id="3-learning-from-feedback-rlhf">3. Learning from feedback
+(RLHF)</h2>
 <p>This is the step most associated with the ChatGPT era. The insight:
 <strong>it&#39;s far easier for a human to compare two answers than to write
 the perfect one.</strong> So instead of demanding more demonstrations,
