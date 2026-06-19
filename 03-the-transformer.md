@@ -14,11 +14,11 @@ By the end of Chapter 2 we have a stream of integer **tokens**. The Transformer'
 
 That's it. "Write me a poem," "debug this code," "explain photosynthesis" — all of it is this one operation, run over and over (we'll see how in Chapter 6). So the whole of this chapter answers: *what kind of machine can look at a sequence of tokens and produce a good guess at the next one?*
 
-The 2017 answer — the **Transformer** ("Attention Is All You Need") — now underlies essentially every frontier model. We'll build it in five moves: **embeddings → attention → multiple heads → the full block → stacking**.
+The 2017 answer — the **Transformer** ("Attention Is All You Need") — now underlies essentially every frontier model. We'll build it up piece by piece: **embeddings → attention → multiple heads → the full block → stacking**.
 
 ---
 
-## 1. Move 1: Tokens become vectors (embeddings)
+## 1. Tokens become vectors (embeddings)
 
 An integer like `1257` carries no meaning — `1258` isn't "one more" in any useful sense. So the first thing the model does is replace each token ID with a long list of numbers called an **embedding vector** (think: a few thousand numbers per token).
 
@@ -53,7 +53,7 @@ That mechanism is **attention**. It is the heart of the Transformer, and the nex
 
 ---
 
-## 3. Move 2: Attention — letting tokens look at each other
+## 3. Attention — letting tokens look at each other
 
 Here is the idea without any equations. Every token produces three things from its current vector:
 
@@ -91,7 +91,7 @@ When the model is learning to predict the *next* token, it must not look at toke
 
 ---
 
-## 4. Move 3: Many heads, many kinds of relationship
+## 4. Many heads, many kinds of relationship
 
 One attention operation learns *one kind* of relationship. But language has many simultaneously: grammatical subject↔verb, pronoun↔referent, adjective↔noun, topic↔topic.
 
@@ -111,7 +111,7 @@ Nobody assigns these jobs; the heads differentiate on their own during training 
 
 ---
 
-## 5. Move 4: The full Transformer block
+## 5. The full Transformer block
 
 Attention mixes information *between* tokens. But each token also needs to *think* about what it just absorbed. So a Transformer **block** pairs attention with a second component:
 
@@ -142,7 +142,7 @@ A block takes in token vectors and hands back token vectors of the same shape �
 
 ---
 
-## 6. Move 5: Stack the blocks — depth builds abstraction
+## 6. Stack the blocks — depth builds abstraction
 
 A real model stacks **dozens to hundreds** of these identical blocks. Each layer refines the representation a little further, and a rough hierarchy emerges:
 
@@ -156,7 +156,7 @@ A real model stacks **dozens to hundreds** of these identical blocks. Each layer
    a final vector for each position, rich with context
 ```
 
-This mirrors the embedding intuition from Move 1: low layers handle form, high layers handle meaning. Depth is *why* large models reason in ways small ones can't.
+This mirrors the embedding intuition from Section 1: low layers handle form, high layers handle meaning. Depth is *why* large models reason in ways small ones can't.
 
 ### One more ingredient: position
 

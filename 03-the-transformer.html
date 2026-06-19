@@ -153,11 +153,11 @@ photosynthesis&quot; — all of it is this one operation, run over and over
 good guess at the next one?</em></p>
 <p>The 2017 answer — the <strong>Transformer</strong> (&quot;Attention Is All
 You Need&quot;) — now underlies essentially every frontier model. We&#39;ll build
-it in five moves: <strong>embeddings → attention → multiple heads → the
-full block → stacking</strong>.</p>
+it up piece by piece: <strong>embeddings → attention → multiple heads →
+the full block → stacking</strong>.</p>
 <hr />
-<h2 id="1-move-1-tokens-become-vectors-embeddings">1. Move 1: Tokens
-become vectors (embeddings)</h2>
+<h2 id="1-tokens-become-vectors-embeddings">1. Tokens become vectors
+(embeddings)</h2>
 <p>An integer like <code>1257</code> carries no meaning —
 <code>1258</code> isn&#39;t &quot;one more&quot; in any useful sense. So the first
 thing the model does is replace each token ID with a long list of
@@ -201,8 +201,8 @@ finance meaning.</p>
 Transformer, and the next section is the most important page in this
 series so far.</p>
 <hr />
-<h2 id="3-move-2-attention--letting-tokens-look-at-each-other">3. Move
-2: Attention — letting tokens look at each other</h2>
+<h2 id="3-attention--letting-tokens-look-at-each-other">3. Attention —
+letting tokens look at each other</h2>
 <p>Here is the idea without any equations. Every token produces three
 things from its current vector:</p>
 <table>
@@ -277,8 +277,8 @@ itself and the tokens <em>before</em> it. This is why generation is
 called <strong>autoregressive</strong> — it builds the sequence strictly
 left to right.</p>
 <hr />
-<h2 id="4-move-3-many-heads-many-kinds-of-relationship">4. Move 3: Many
-heads, many kinds of relationship</h2>
+<h2 id="4-many-heads-many-kinds-of-relationship">4. Many heads, many
+kinds of relationship</h2>
 <p>One attention operation learns <em>one kind</em> of relationship. But
 language has many simultaneously: grammatical subject↔︎verb,
 pronoun↔︎referent, adjective↔︎noun, topic↔︎topic.</p>
@@ -297,8 +297,7 @@ during training because diverse &quot;viewpoints&quot; predict the next token
 better than one. (Researchers later probe a trained model to discover
 what each head learned.)</p>
 <hr />
-<h2 id="5-move-4-the-full-transformer-block">5. Move 4: The full
-Transformer block</h2>
+<h2 id="5-the-full-transformer-block">5. The full Transformer block</h2>
 <p>Attention mixes information <em>between</em> tokens. But each token
 also needs to <em>think</em> about what it just absorbed. So a
 Transformer <strong>block</strong> pairs attention with a second
@@ -349,8 +348,8 @@ vanishing.</li>
 same shape — just <em>more contextually informed</em>. Which means you
 can stack them.</p>
 <hr />
-<h2 id="6-move-5-stack-the-blocks--depth-builds-abstraction">6. Move 5:
-Stack the blocks — depth builds abstraction</h2>
+<h2 id="6-stack-the-blocks--depth-builds-abstraction">6. Stack the
+blocks — depth builds abstraction</h2>
 <p>A real model stacks <strong>dozens to hundreds</strong> of these
 identical blocks. Each layer refines the representation a little
 further, and a rough hierarchy emerges:</p>
@@ -361,9 +360,9 @@ further, and a rough hierarchy emerges:</p>
         │
         ▼
    a final vector for each position, rich with context</code></pre>
-<p>This mirrors the embedding intuition from Move 1: low layers handle
-form, high layers handle meaning. Depth is <em>why</em> large models
-reason in ways small ones can&#39;t.</p>
+<p>This mirrors the embedding intuition from Section 1: low layers
+handle form, high layers handle meaning. Depth is <em>why</em> large
+models reason in ways small ones can&#39;t.</p>
 <h3 id="one-more-ingredient-position">One more ingredient: position</h3>
 <p>Attention, by itself, is <strong>order-blind</strong> — it sees a
 <em>set</em> of tokens, not a sequence, so &quot;dog bites man&quot; and &quot;man
