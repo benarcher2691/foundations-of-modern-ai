@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>appendix-build-a-coding-agent</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+:root {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme]) {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+}
+:root[data-theme="light"] {
+--fg: #38342b; --muted: #6a6457; --bg: #f0e7d2; --card: #f7f0de;
+--accent: #a8490b; --line: #dbcfb6; --good: #4d7a1f; --warn: #a8490b;
+--code-bg: #e8dcc1; --shadow: rgba(60,45,15,.10);
+}
+:root[data-theme="dark"] {
+--fg: #e8e6e0; --muted: #a8a49a; --bg: #161513; --card: #1e1d1a;
+--accent: #e8884a; --line: #34322c; --good: #57c172; --warn: #e8884a;
+--code-bg: #24221d; --shadow: rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+body {
+margin: 0; background: var(--bg); color: var(--fg);
+font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+max-width: 820px; padding: 48px 24px 96px; margin-left: auto; margin-right: auto;
+transition: background .25s ease, color .25s ease;
+}
+h1 { font-size: 2.1rem; line-height: 1.2; margin: 0 0 .3em; letter-spacing: -.02em; }
+h2 { font-size: 1.5rem; margin: 2.4em 0 .6em; padding-top: .8em; border-top: 1px solid var(--line); letter-spacing: -.01em; }
+h3 { font-size: 1.15rem; margin: 1.8em 0 .4em; color: var(--accent); }
+p { margin: .7em 0; }
+a { color: var(--accent); }
+blockquote {
+margin: 1.2em 0; padding: .6em 1.1em; border-left: 3px solid var(--accent);
+background: var(--card); color: var(--muted); border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: .3em 0; }
+blockquote strong { color: var(--fg); }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .93rem; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 650; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+code { background: var(--code-bg); padding: .12em .4em; border-radius: 4px; font-size: .88em;
+font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+pre { background: var(--code-bg); padding: 1.1em; border-radius: 8px; overflow-x: auto;
+line-height: 1.45; font-size: .82rem; border: 1px solid var(--line); }
+pre code { background: none; padding: 0; font-size: inherit; }
+ul, ol { padding-left: 1.4em; }
+li { margin: .35em 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2.4em 0; }
+
+.home-link {
+position: fixed; top: 16px; left: 16px; z-index: 100; text-decoration: none;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.home-link:hover { border-color: var(--accent); color: var(--accent); }
+.home-link:active { transform: scale(.95); }
+.home-link .icon { width: 15px; height: 15px; }
+.theme-toggle {
+position: fixed; top: 16px; right: 16px; z-index: 100;
+cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+border-radius: 100px; padding: 7px 13px; font-family: inherit; font-size: .82rem;
+display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 1px 4px var(--shadow);
+transition: border-color .2s ease, transform .1s ease, background .25s ease, color .25s ease;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.theme-toggle:active { transform: scale(.95); }
+.theme-toggle .icon { width: 15px; height: 15px; }
+
+.theme-toggle .to-dark, .theme-toggle .to-light { display: none; align-items: center; gap: 6px; }
+:root[data-theme="light"] .theme-toggle .to-dark { display: inline-flex; }
+:root[data-theme="dark"] .theme-toggle .to-light { display: inline-flex; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-toggle .to-dark { display: inline-flex; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-toggle .to-light { display: inline-flex; } }
+@media (max-width: 640px) {
+.theme-toggle .label, .home-link .label { display: none; }
+.theme-toggle, .home-link { padding: 7px; }
+}
+</style>
+  <script>
+    /* Apply saved theme before first paint to avoid a flash. Shared key with index.html. */
+    (function () {
+      try {
+        var t = localStorage.getItem('foam-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+<a class="home-link" href="index.html" title="Back to contents" aria-label="Back to contents">
+  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+  <span class="label">Contents</span>
+</a>
+<header id="title-block-header">
+<h1 class="title">appendix-build-a-coding-agent</h1>
+</header>
+<h1 id="appendix-b--build-a-minimal-coding-agent-in-python-with-an-open-model">Appendix
+B — Build a Minimal Coding Agent (in Python, with an open model)</h1>
+<blockquote>
+<p><em>Foundations of Modern AI</em> — Appendix B Builds on: <a href="09-the-harness.html">Chapter 9 — The Harness</a> (this is that
+chapter, made runnable) Scope: a complete, working terminal coding agent
+in ~150 lines of Python — an LLM, a loop, and four tools — running
+against an <strong>open</strong> model (GLM via Z.ai, or MiniMax)
+through an OpenAI-compatible endpoint. Inspired by Thorsten Ball&#39;s <a href="https://ampcode.com/notes/how-to-build-an-agent">&quot;How to Build an
+Agent&quot;</a>. The runnable code lives in <a href="agent/agent.py"><code>agent/agent.py</code></a>.</p>
+</blockquote>
+<hr />
+<h2 id="0-what-were-building-and-why-its-small">0. What we&#39;re building,
+and why it&#39;s small</h2>
+<p>Chapter 9 argued that a harness is just <em>call the model → run the
+tools it asks for → feed results back → repeat</em>. This appendix
+proves it by building one you can actually run. The whole agent is
+<strong>about 150 lines</strong>: a system prompt, four tools, and the
+loop.</p>
+<p>The thesis, borrowed from the article that inspired this: a coding
+agent is <strong>&quot;an LLM, a loop, and enough tokens.&quot;</strong> There is
+no hidden cleverness — the model is doing the reasoning (Chapters 3–5,
+8); our code just gives it hands (Chapter 9). With four tools — read a
+file, list files, edit a file, run a shell command — a capable model can
+explore a project, write code, run it, and fix its own mistakes.</p>
+<p>Two deliberate choices for this build:</p>
+<ul>
+<li><strong>Python</strong>, because it&#39;s the lingua franca of the field
+(Chapter 2&#39;s training data is full of it).</li>
+<li>An <strong>open model</strong> — GLM-5.2 (Z.ai) or MiniMax-M2.7 —
+instead of a closed API, because you asked for one, and because it shows
+the harness is genuinely model-agnostic.</li>
+</ul>
+<hr />
+<h2 id="1-the-trick-that-makes-it-provider-agnostic">1. The trick that
+makes it provider-agnostic</h2>
+<p>Chapter 9 said the <em>only</em> provider-specific part of a harness
+is the wire format, hidden behind one <code>complete()</code> function.
+Here we get that almost for free, because both open providers expose an
+<strong>OpenAI-compatible</strong> API. So we use the standard
+<code>openai</code> Python client and just <em>repoint</em> it:</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th><code>base_url</code></th>
+<th><code>model</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GLM (Z.ai)</strong> — our default</td>
+<td><code>https://api.z.ai/api/openai/v1</code></td>
+<td><code>glm-5.2</code></td>
+</tr>
+<tr>
+<td><strong>MiniMax</strong></td>
+<td><code>https://api.minimax.io/v1</code></td>
+<td><code>MiniMax-M2.7</code></td>
+</tr>
+<tr>
+<td>Local (Ollama, etc.)</td>
+<td><code>http://localhost:11434/v1</code></td>
+<td>e.g. <code>qwen2.5-coder</code></td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> OpenAI(base_url<span class="op">=</span>BASE_URL, api_key<span class="op">=</span>API_KEY)   <span class="co"># swap BASE_URL/MODEL to switch</span></span></code></pre></div>
+<p>That&#39;s the entire &quot;agnostic&quot; story: one client speaking the OpenAI
+Chat Completions dialect, three lines of config to change models.
+(Endpoints and model names drift — confirm the current ones in your
+provider&#39;s dashboard.)</p>
+<h3 id="setup">Setup</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install openai</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">AI_API_KEY</span><span class="op">=</span>...        <span class="co"># a key from Z.ai or MiniMax</span></span></code></pre></div>
+<hr />
+<h2 id="2-a-tool-is-a-function-plus-a-schema">2. A tool is a function
+plus a schema</h2>
+<p>Recall Chapter 9: the model never runs anything — it
+<em>requests</em> a tool by emitting a structured call, and our code
+executes it. So every tool is two things: a <strong>Python
+function</strong> that does the work, and a <strong>schema</strong> that
+tells the model the tool exists and what arguments it takes.</p>
+<p>Here are the four functions — short and unremarkable, which is the
+point:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_file(path):                      <span class="co"># read a file</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Path(path).read_text()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> list_files(path<span class="op">=</span><span class="st">&quot;.&quot;</span>):                 <span class="co"># list a directory (dirs get a trailing /)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    items <span class="op">=</span> [p.name <span class="op">+</span> (<span class="st">&quot;/&quot;</span> <span class="cf">if</span> p.is_dir() <span class="cf">else</span> <span class="st">&quot;&quot;</span>) <span class="cf">for</span> p <span class="kw">in</span> <span class="bu">sorted</span>(Path(path).iterdir())]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> json.dumps(items)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> edit_file(path, old_str, new_str):    <span class="co"># replace text; empty old_str → create file</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Path(path)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> old_str <span class="op">==</span> <span class="st">&quot;&quot;</span>:</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        p.write_text(new_str)<span class="op">;</span> <span class="cf">return</span> <span class="ss">f&quot;wrote </span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> p.read_text()</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> old_str <span class="kw">not</span> <span class="kw">in</span> text: <span class="cf">return</span> <span class="st">&quot;ERROR: old_str not found in file&quot;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    p.write_text(text.replace(old_str, new_str, <span class="dv">1</span>))<span class="op">;</span> <span class="cf">return</span> <span class="st">&quot;OK&quot;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bash(cmd):                            <span class="co"># run a shell command</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> subprocess.run(cmd, shell<span class="op">=</span><span class="va">True</span>, capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, timeout<span class="op">=</span><span class="dv">60</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (r.stdout <span class="op">+</span> r.stderr).strip() <span class="kw">or</span> <span class="st">&quot;(no output)&quot;</span></span></code></pre></div>
+<p>The <code>edit_file</code> design is worth noting: instead of
+&quot;rewrite the whole file,&quot; the model supplies an <strong>exact
+<code>old_str</code> to find and a <code>new_str</code> to replace it
+with</strong> — a surgical edit. (Empty <code>old_str</code> means
+&quot;create the file.&quot;) This is easier for the model to get right and safer
+than regenerating whole files.</p>
+<p>Each function is paired with an <strong>OpenAI tool schema</strong> —
+<code>name</code>, <code>description</code>, and a JSON-Schema for the
+arguments:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;type&quot;</span>: <span class="st">&quot;function&quot;</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;function&quot;</span>: {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;name&quot;</span>: <span class="st">&quot;read_file&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;description&quot;</span>: <span class="st">&quot;Read the contents of a file at a relative path.&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;parameters&quot;</span>: {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;type&quot;</span>: <span class="st">&quot;object&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;properties&quot;</span>: {<span class="st">&quot;path&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>}},</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;required&quot;</span>: [<span class="st">&quot;path&quot;</span>],</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The <strong>description</strong> is the model&#39;s only guide to
+<em>when</em> to use a tool — so it earns its keep. We keep a registry
+mapping each name to <code>(function, schema)</code>, and send the list
+of schemas on every request.</p>
+<hr />
+<h2 id="3-the-loop">3. The loop</h2>
+<p>Everything comes together in two nested loops — the heart of the
+agent:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;system&quot;</span>, <span class="st">&quot;content&quot;</span>: SYSTEM_PROMPT}]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:                                   <span class="co"># OUTER: one user message per turn</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    user <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;you&gt; &quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    messages.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: user})</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:                               <span class="co"># INNER: think + use tools until it replies</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        resp <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            model<span class="op">=</span>MODEL, messages<span class="op">=</span>messages, tools<span class="op">=</span>TOOL_SCHEMAS,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        msg <span class="op">=</span> resp.choices[<span class="dv">0</span>].message</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        messages.append(msg.model_dump(exclude_none<span class="op">=</span><span class="va">True</span>))   <span class="co"># keep the full history</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> msg.tool_calls:                <span class="co"># no tool calls → the model answered</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">&quot;ai&gt;&quot;</span>, msg.content)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> tc <span class="kw">in</span> msg.tool_calls:             <span class="co"># run each requested tool, feed results back</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>            args <span class="op">=</span> json.loads(tc.function.arguments <span class="kw">or</span> <span class="st">&quot;</span><span class="sc">{}</span><span class="st">&quot;</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            result <span class="op">=</span> run_tool(tc.function.name, args)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>            messages.append({</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;role&quot;</span>: <span class="st">&quot;tool&quot;</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;tool_call_id&quot;</span>: tc.<span class="bu">id</span>,         <span class="co"># link the result to the request</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;content&quot;</span>: result,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>            })</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># loop again — the model now sees the results and decides the next step</span></span></code></pre></div>
+<p>Trace one turn against Chapter 9&#39;s protocol:</p>
+<pre><code>  you&gt; create fizzbuzz.py and run it
+        │
+        ▼  model emits a tool call (it did NOT write anything yet):
+   tool_call → edit_file(path=&quot;fizzbuzz.py&quot;, old_str=&quot;&quot;, new_str=&quot;for i in range(1,21): ...&quot;)
+        │   we run it; append a role:&quot;tool&quot; result (&quot;wrote fizzbuzz.py&quot;)
+        ▼  model emits another:
+   tool_call → bash(cmd=&quot;python fizzbuzz.py&quot;)
+        │   we run it; append the program&#39;s output
+        ▼  no more tool calls:
+   ai&gt; Done — created fizzbuzz.py and it prints 1, 2, Fizz, 4, Buzz, …</code></pre>
+<p>Two details that make it correct:</p>
+<ul>
+<li><strong>The conversation is the memory.</strong> The model is
+stateless (Chapter 6), so we append <em>every</em> message — user,
+assistant, and each <code>tool</code> result — and resend the whole list
+each call. The growing <code>messages</code> list <em>is</em> the
+agent&#39;s working memory.</li>
+<li><strong>Tool results link back by id.</strong> Each
+<code>tool_call</code> has an <code>id</code>; the result we send back
+carries the matching <code>tool_call_id</code>. That&#39;s how the model
+knows which request this answers (the OpenAI dialect of Chapter 9&#39;s
+<code>tool_use</code>/<code>tool_result</code> pairing).</li>
+</ul>
+<p>The inner loop exits exactly when the model <strong>replies with text
+and no tool calls</strong> — its way of saying &quot;I&#39;m done; here&#39;s the
+answer.&quot;</p>
+<hr />
+<h2 id="4-the-whole-program">4. The whole program</h2>
+<p>Putting it together — system prompt, tools, registry, loop — this is
+the complete agent (also in <a href="agent/agent.py"><code>agent/agent.py</code></a>, with a couple of
+niceties like coloured output):</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json, os, subprocess, sys</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>BASE_URL <span class="op">=</span> os.environ.get(<span class="st">&quot;AI_BASE_URL&quot;</span>, <span class="st">&quot;https://api.z.ai/api/openai/v1&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>MODEL    <span class="op">=</span> os.environ.get(<span class="st">&quot;AI_MODEL&quot;</span>, <span class="st">&quot;glm-5.2&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>client   <span class="op">=</span> OpenAI(base_url<span class="op">=</span>BASE_URL, api_key<span class="op">=</span>os.environ[<span class="st">&quot;AI_API_KEY&quot;</span>])</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>SYSTEM_PROMPT <span class="op">=</span> (<span class="st">&quot;You are a coding assistant working in a terminal, in the user&#39;s &quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;current directory. Use the tools to read, list, and edit files and run shell &quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;commands. Read a file before editing it. Keep replies short.&quot;</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_file(path): <span class="cf">return</span> Path(path).read_text()</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> list_files(path<span class="op">=</span><span class="st">&quot;.&quot;</span>):</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> json.dumps([p.name <span class="op">+</span> (<span class="st">&quot;/&quot;</span> <span class="cf">if</span> p.is_dir() <span class="cf">else</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                       <span class="cf">for</span> p <span class="kw">in</span> <span class="bu">sorted</span>(Path(path).iterdir())])</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> edit_file(path, old_str, new_str):</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Path(path)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> old_str <span class="op">==</span> <span class="st">&quot;&quot;</span>: p.write_text(new_str)<span class="op">;</span> <span class="cf">return</span> <span class="ss">f&quot;wrote </span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> p.read_text()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> old_str <span class="kw">not</span> <span class="kw">in</span> t: <span class="cf">return</span> <span class="st">&quot;ERROR: old_str not found in file&quot;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    p.write_text(t.replace(old_str, new_str, <span class="dv">1</span>))<span class="op">;</span> <span class="cf">return</span> <span class="st">&quot;OK&quot;</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bash(cmd):</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> subprocess.run(cmd, shell<span class="op">=</span><span class="va">True</span>, capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, timeout<span class="op">=</span><span class="dv">60</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (r.stdout <span class="op">+</span> r.stderr).strip() <span class="kw">or</span> <span class="st">&quot;(no output)&quot;</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tool(name, desc, props, required):</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;function&quot;</span>, <span class="st">&quot;function&quot;</span>: {<span class="st">&quot;name&quot;</span>: name, <span class="st">&quot;description&quot;</span>: desc,</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;parameters&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;object&quot;</span>, <span class="st">&quot;properties&quot;</span>: props, <span class="st">&quot;required&quot;</span>: required}}}</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>TOOLS <span class="op">=</span> {</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;read_file&quot;</span>:  (read_file,  tool(<span class="st">&quot;read_file&quot;</span>,  <span class="st">&quot;Read a file at a relative path.&quot;</span>,</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>                   {<span class="st">&quot;path&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>}}, [<span class="st">&quot;path&quot;</span>])),</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;list_files&quot;</span>: (list_files, tool(<span class="st">&quot;list_files&quot;</span>, <span class="st">&quot;List files/dirs under a path.&quot;</span>,</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>                   {<span class="st">&quot;path&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>}}, [])),</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;edit_file&quot;</span>:  (edit_file,  tool(<span class="st">&quot;edit_file&quot;</span>,  <span class="st">&quot;Replace old_str with new_str; &quot;</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;empty old_str creates the file.&quot;</span>,</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                   {<span class="st">&quot;path&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>}, <span class="st">&quot;old_str&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>},</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;new_str&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>}}, [<span class="st">&quot;path&quot;</span>, <span class="st">&quot;old_str&quot;</span>, <span class="st">&quot;new_str&quot;</span>])),</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;bash&quot;</span>:       (bash,       tool(<span class="st">&quot;bash&quot;</span>, <span class="st">&quot;Run a shell command, return its output.&quot;</span>,</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>                   {<span class="st">&quot;cmd&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;string&quot;</span>}}, [<span class="st">&quot;cmd&quot;</span>])),</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>SCHEMAS <span class="op">=</span> [s <span class="cf">for</span> _f, s <span class="kw">in</span> TOOLS.values()]</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_tool(name, args):</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:    <span class="cf">return</span> <span class="bu">str</span>(TOOLS[name][<span class="dv">0</span>](<span class="op">**</span>args))</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e: <span class="cf">return</span> <span class="ss">f&quot;ERROR: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;system&quot;</span>, <span class="st">&quot;content&quot;</span>: SYSTEM_PROMPT}]</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>: user <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;you&gt; &quot;</span>).strip()</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> (<span class="pp">EOFError</span>, <span class="pp">KeyboardInterrupt</span>): <span class="cf">break</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> user: <span class="cf">continue</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    messages.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: user})</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>        msg <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>            model<span class="op">=</span>MODEL, messages<span class="op">=</span>messages, tools<span class="op">=</span>SCHEMAS).choices[<span class="dv">0</span>].message</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        messages.append(msg.model_dump(exclude_none<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> msg.tool_calls:</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">&quot;ai&gt;&quot;</span>, msg.content)<span class="op">;</span> <span class="cf">break</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> tc <span class="kw">in</span> msg.tool_calls:</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>            result <span class="op">=</span> run_tool(tc.function.name, json.loads(tc.function.arguments <span class="kw">or</span> <span class="st">&quot;</span><span class="sc">{}</span><span class="st">&quot;</span>))</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>            messages.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;tool&quot;</span>, <span class="st">&quot;tool_call_id&quot;</span>: tc.<span class="bu">id</span>, <span class="st">&quot;content&quot;</span>: result})</span></code></pre></div>
+<p>That&#39;s a coding agent. Everything from Chapter 9 is here: the
+<strong>system prompt</strong> (§5 there), <strong>tool
+definitions</strong> (§2), the <strong>agentic loop</strong> (§3), and
+the <strong>append-only history</strong> (§6) — concrete and
+runnable.</p>
+<hr />
+<h2 id="5-running-it">5. Running it</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /a/throwaway/directory          <span class="co"># see the safety note below</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">AI_API_KEY</span><span class="op">=</span>...</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> agent.py</span></code></pre></div>
+<p>A first session might look like:</p>
+<pre><code>you&gt; write hello.py that prints hello, then run it
+  [tool] edit_file({&#39;path&#39;: &#39;hello.py&#39;, &#39;old_str&#39;: &#39;&#39;, &#39;new_str&#39;: &quot;print(&#39;hello&#39;)&quot;}) -&gt; wrote hello.py
+  [tool] bash({&#39;cmd&#39;: &#39;python hello.py&#39;}) -&gt; hello
+ai&gt; Done — hello.py prints &quot;hello&quot;.
+
+you&gt; add a bug to it, then find and fix the bug
+  [tool] edit_file(...) -&gt; OK
+  [tool] read_file({&#39;path&#39;: &#39;hello.py&#39;}) -&gt; print(&#39;helo&#39;)
+  [tool] edit_file({&#39;path&#39;: &#39;hello.py&#39;, &#39;old_str&#39;: &#39;helo&#39;, &#39;new_str&#39;: &#39;hello&#39;}) -&gt; OK
+ai&gt; Fixed a typo (helo → hello); it prints &quot;hello&quot; again.</code></pre>
+<p>Notice nobody told the model <em>how</em> to do any of this — which
+tool, in what order. It read the file because it decided it needed to,
+then edited, then verified. The loop just keeps offering it tools until
+it stops asking. That autonomy is the model&#39;s (Chapters 5, 8); the
+harness only supplies the hands.</p>
+<hr />
+<h2 id="6-what-this-leaves-out-on-purpose">6. What this leaves out (on
+purpose)</h2>
+<p>This is a teaching skeleton, not Claude Code. To go from here to a
+real harness, add the things Chapters 6–9 described:</p>
+<ul>
+<li><strong>Safety / approval.</strong> ⚠ The <code>bash</code> tool
+runs <strong>any command the model chooses</strong>, with your
+privileges. Run the agent in a scratch directory, and in anything real,
+<strong>gate destructive tools behind a yes/no prompt</strong> (Chapter
+9, §8; the risk from Chapter 7).</li>
+<li><strong>Streaming.</strong> Print tokens as they arrive instead of
+waiting for the full reply.</li>
+<li><strong>Context management.</strong> The <code>messages</code> list
+grows forever; eventually it exceeds the <strong>context window</strong>
+(Chapter 6). Real harnesses <strong>compact</strong> old turns or prune
+stale tool output.</li>
+<li><strong>Prompt caching.</strong> We resend the whole history every
+step — fine for a demo, expensive for long sessions. Chapter 9 (§6) is
+the fix: keep a stable prefix and let the provider cache it.</li>
+<li><strong>Robustness.</strong> Retries, malformed-arguments handling,
+file-size limits, parallel read-only tools.</li>
+</ul>
+<p>None of these change the core. They wrap more judgment around the
+same <strong>call → act → feed back</strong> loop.</p>
+<hr />
+<h2 id="7-recap">7. Recap</h2>
+<ul>
+<li>A working coding agent is <strong>~150 lines</strong>: a system
+prompt, four tools, and a loop — &quot;an LLM, a loop, and enough
+tokens.&quot;</li>
+<li>Because open providers (GLM via Z.ai, MiniMax) speak the
+<strong>OpenAI-compatible</strong> format, the harness is genuinely
+model-agnostic: change <code>base_url</code> + <code>model</code> to
+switch, nothing else.</li>
+<li>A <strong>tool is a function + a schema</strong>;
+<code>read_file</code>, <code>list_files</code>, <code>edit_file</code>
+(surgical find/replace), and <code>bash</code> are enough to do real
+work.</li>
+<li>The <strong>loop</strong> appends every message (the stateless
+model&#39;s memory), runs each requested tool, links results back by id, and
+stops when the model replies with text.</li>
+<li>The model supplies the <strong>autonomy</strong>; the harness
+supplies the <strong>hands</strong>. Production extras (approval,
+streaming, compaction, caching) wrap the same loop.</li>
+</ul>
+<hr />
+<p><em>Generated as part of the Foundations of Modern AI study series.
+Source of truth: this <code>.md</code> file; the <code>.html</code> is
+built from it via <code>./build.sh</code>. Runnable code: <a href="agent/agent.py"><code>agent/agent.py</code></a>.</em></p>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light / dark mode" title="Toggle light / dark mode">
+  <span class="to-dark">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>
+    <span class="label">Dark</span>
+  </span>
+  <span class="to-light">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" /></svg>
+    <span class="label">Light</span>
+  </span>
+</button>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    function current() {
+      var a = document.documentElement.getAttribute('data-theme');
+      if (a) return a;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    btn.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('foam-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

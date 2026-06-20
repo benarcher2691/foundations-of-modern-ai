@@ -285,7 +285,8 @@ None of these change the core: they wrap more judgment around the same **call �
 
 ## What's next
 
-- **Appendix — [Landmark Papers](appendix-landmark-papers.md):** the foundational works behind everything in this series.
+- **Appendix B — [Build a Minimal Coding Agent](appendix-build-a-coding-agent.md):** this chapter made runnable — a ~150-line terminal coding agent in Python, against an open model. The natural next step from here.
+- **Appendix A — [Landmark Papers](appendix-landmark-papers.md):** the foundational works behind everything in this series.
 - *Planned — Multimodality:* extending these ideas to images, audio, and video (still parked; the series leans text and code).
 
 ---

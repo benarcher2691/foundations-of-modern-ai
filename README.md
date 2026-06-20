@@ -20,8 +20,9 @@ Each chapter exists as a Markdown source of truth (`.md`) and a self-contained, 
 | 8 | Reasoning Models — teaching a model to think before it answers | [`.md`](08-reasoning-models.md) | [`.html`](08-reasoning-models.html) |
 | 9 | The Harness — how an agent is wired together (the loop, tools, caching) | [`.md`](09-the-harness.md) | [`.html`](09-the-harness.html) |
 | A | Appendix — Landmark Papers (Turing 1936 → GPT-3 2020), each with a summary & significance | [`.md`](appendix-landmark-papers.md) | [`.html`](appendix-landmark-papers.html) |
+| B | Appendix — Build a Minimal Coding Agent (runnable Python, open model) | [`.md`](appendix-build-a-coding-agent.md) | [`.html`](appendix-build-a-coding-agent.html) |
 
-The appendix's PDFs are stored in [`papers/`](papers/); each entry also links to its original online source.
+Appendix A's PDFs are stored in [`papers/`](papers/); each entry also links to its original online source. Appendix B's runnable agent lives in [`agent/`](agent/).
 
 *Planned:* a Multimodality chapter (vision / audio / video).
 
